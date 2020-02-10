@@ -1,0 +1,34 @@
+
+<div class="container mt-5" style="width: 600px;margin-left: auto;margin-right: auto;">
+    <div class=" pt-3 pb-2 mb-3">
+      <h1 class="h2">Search Students By Skill</h1>
+      
+    </div>
+    <div class="search">
+      <input type="text" (keydown)="KeyDown($event)" [(ngModel)]="skillName" 
+      [matAutocomplete]="autoSkill"
+      name="CourseId"  class="searchTerm" placeholder="Skill in your mind">
+      <button type="submit"  class="searchButton" >
+        Search
+      </button>
+  </div>
+  </div>
+  
+  
+  
+      <div>
+                      
+          <mat-autocomplete #autoSkill="matAutocomplete">
+            <mat-option *ngFor="let skill of filteredSkills "
+            (click) ="MatOptionClicked(skill)"
+            [value]="skill.name">
+              <span>
+                  <img src="{{skill.icon}}" alt="{{skill.name}}" style="height: 48px;width: 48px;">
+              </span>
+              <span>{{ skill.name }}</span> |
+              <span>{{skill.studentsNo}}</span>
+            </mat-option>
+          </mat-autocomplete>
+  </div>
+  
+  

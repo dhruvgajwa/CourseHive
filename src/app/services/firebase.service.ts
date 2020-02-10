@@ -3,18 +3,20 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
 import { firestore } from 'firebase';
 import { FAQ, Answer, Content, Review, Course } from '../Models/Course';
-import { Profile } from '../Models/Profile';
+import { Profile, SKILLS, StudentsInSkills, MySkills, MyNotifications } from '../Models/Profile';
+import {AngularFireDatabase } from '@angular/fire/database';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FirebaseService {
 
-  constructor(private afs: AngularFirestore) { }
+  constructor(private afs: AngularFirestore ,
+              private db: AngularFireDatabase  ) { }
 
   getCourseDetailsById(courseId: string) {
     return this.afs.collection('Courses').doc(courseId).valueChanges().
-    pipe(take(1));
+    pipe(take(1));      
   }
 
   getCourseReviewsById(courseId: string) {
@@ -308,6 +310,10 @@ export class FirebaseService {
   AddACourse(course: Course) {
   return this.afs.collection('Courses').doc(course.id).set( Object.assign({}, course));
   }
+  AddACourseToRealtimeDatabase(course: Course) {
+    return this.db.list('Courses').set(course.id, Object.assign({},course));
+     
+    }
 
   getMyProfileData(myFId: string) {
    return  this.afs.collection('Profiles').doc<Profile>(myFId).valueChanges().pipe(take(1));
@@ -353,10 +359,61 @@ export class FirebaseService {
     return this.afs.collection('Courses').doc(content.courseId).collection('contents')
     .doc(content.fId).delete().then( _ => {
       this.afs.collection('Profiles').doc(myFid).collection('myUploads').doc(content.fId).delete();
-    });
+    }); 
   }
   deleteAnswer(answer: Answer, courseId: string, questionFid: string, answerId: string ) {
     return this.afs.collection('Courses').doc(courseId).collection('fAQs').doc(questionFid).collection('answers')
     .doc(answerId).delete();
   }
+
+  // All these are untested
+  setNewSkill(skill: SKILLS) {
+   skill.id = this.db.createPushId();
+    return this.db.list<SKILLS>('skills').set(skill.id, Object.assign({},skill));
+  }
+
+  // not tested
+  addStudentToSkill(student: StudentsInSkills,skillID: string){
+    return this.db.list<StudentsInSkills>(`skills/${skillID}/students`).set(student.studentFId, Object.assign({},student));
+
+
+  }
+  // after addStudentToSkill add the skill to Student
+  addSkillInStudentData(mySkill: MySkills, myFirebaseID: string){
+    // adding in firestore document
+    this.afs.collection('Profiles').doc(myFirebaseID).collection('mySkills').doc(mySkill.name).set(Object.assign({mySkill}));
+    
+  }
+
+  //search Students in a specific Skill
+ 
+
+
+  // check whether it will be better to store the skills data as an array or a specific collecion
+  // make a proper pros and cons  list for that!
+  // Search a student By name
+  searchStudentByName(name: string) {
+    // check the capitalism for that tag: name
+    return this.afs.collection('Profiles',  ref => ref.orderBy('name').startAt(name).limit(3));
+  }
+  //
+
+  // create a notification component
+  addNotificationToStudent(studentFID: string, notification:MyNotifications ) {
+    this.afs.collection('Profiles').doc(studentFID).update(
+      {
+        myNotifications: firestore.FieldValue.arrayUnion(notification)
+      }
+    );
+  }
+
+  cleanNotifications(studentFID: string) {
+    this.afs.collection('Profiles').doc(studentFID).update(
+      {
+        myNotifications: []
+      }
+    );
+  }
+
+  // 
 }

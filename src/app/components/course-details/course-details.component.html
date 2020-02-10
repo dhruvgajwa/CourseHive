@@ -4,6 +4,58 @@
                 
             </div>
     <mat-tab-group>
+        <mat-tab label="CourseContent"> 
+            <div  class="bd-callout-warning ">
+                <div class="row justify-content-between">
+                    <div class="col-3">
+                       
+                        <button (click)="OpenUploadContentModal(uploadModal)"
+                        class="btn btn-secondary"><i class="fa fa-upload">
+                           Upload
+                       </i></button>
+                    </div>
+                    <div class="col-9">
+                            Hey {{auth.displayName}} wanna upload something!
+                    </div>
+                </div>
+            </div>
+            <div *ngFor="let content of course.contents">
+                    <div class="bd-callout-warning ">
+                            <div class="row justify-content-between mt-2">
+                                <div class="col">
+                                    <p class="card-text">{{content.documentType}}</p>
+                                </div>
+                                <div class="col">
+                                    <button (click)="DownloadClicked(content.documentAddress)"
+                                     class="btn btn-light"><i class="fa fa-download">
+                                        Download
+                                    </i></button>
+                                </div>
+                              
+                            </div>
+                            <div class="row justify-content-between mt-2">
+                                <div class="col text-left">
+                                     <i class="fa fa-arrow-up pointer"
+                                     (click)="UpVoteClickedContent(content)"
+                                      [style.color]="IUpvotedContent(content.upVotedBy) ? '#FF6347' : '#212529'">{{content.upVotedBy.length}}</i> 
+                                     <span class="ml-3">
+                                            <i class="fa fa-arrow-down pointer"
+                                            (click)="DownVoteClickedContent(content)"
+                                            [style.color]="IDownVotedContent(content.downVotedBy) ? '#FF6347' : '#212529'">{{content.downVotedBy.length}}</i> 
+                                     </span>
+                                </div>
+                                <div (click)="openProfile(content.uploadedByFId)" class="col text-right pointer">
+                                         {{content.uploadedByName}}(<span class="text-muted" style="font-size: small">{{content.uploadedByRollNo}}</span>) 
+                                                        : {{getDate(content.uploadedAt)}}
+                                     
+                                </div>
+                                
+                               
+                                
+                            </div>
+                    </div>
+                </div>
+    </mat-tab>
         <mat-tab label="Reviews"> 
                 <div class="row bd-callout-warning no-gutters">
                         <div class="col-md-10">
@@ -126,58 +178,7 @@
                         
             </div>
         </mat-tab>
-        <mat-tab label="CourseContent"> 
-                <div  class="bd-callout-warning ">
-                    <div class="row justify-content-between">
-                        <div class="col-3">
-                           
-                            <button (click)="OpenUploadContentModal(uploadModal)"
-                            class="btn btn-secondary"><i class="fa fa-upload">
-                               Upload
-                           </i></button>
-                        </div>
-                        <div class="col-9">
-                                Hey {{auth.displayName}} wanna upload something!
-                        </div>
-                    </div>
-                </div>
-                <div *ngFor="let content of course.contents">
-                        <div class="bd-callout-warning ">
-                                <div class="row justify-content-between mt-2">
-                                    <div class="col">
-                                        <p class="card-text">{{content.documentType}}</p>
-                                    </div>
-                                    <div class="col">
-                                        <button (click)="DownloadClicked(content.documentAddress)"
-                                         class="btn btn-light"><i class="fa fa-download">
-                                            Download
-                                        </i></button>
-                                    </div>
-                                  
-                                </div>
-                                <div class="row justify-content-between mt-2">
-                                    <div class="col text-left">
-                                         <i class="fa fa-arrow-up pointer"
-                                         (click)="UpVoteClickedContent(content)"
-                                          [style.color]="IUpvotedContent(content.upVotedBy) ? '#FF6347' : '#212529'">{{content.upVotedBy.length}}</i> 
-                                         <span class="ml-3">
-                                                <i class="fa fa-arrow-down pointer"
-                                                (click)="DownVoteClickedContent(content)"
-                                                [style.color]="IDownVotedContent(content.downVotedBy) ? '#FF6347' : '#212529'">{{content.downVotedBy.length}}</i> 
-                                         </span>
-                                    </div>
-                                    <div (click)="openProfile(content.uploadedByFId)" class="col text-right pointer">
-                                             {{content.uploadedByName}}(<span class="text-muted" style="font-size: small">{{content.uploadedByRollNo}}</span>) 
-                                                            : {{getDate(content.uploadedAt)}}
-                                         
-                                    </div>
-                                    
-                                   
-                                    
-                                </div>
-                        </div>
-                    </div>
-        </mat-tab>
+
         <mat-tab label="More Information"> 
                 <div  class="bd-callout-warning ">
                     <div class="row mt-2">

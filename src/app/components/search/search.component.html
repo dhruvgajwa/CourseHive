@@ -1,23 +1,17 @@
-  <div class="container mt-5" style="width: 600px;margin-left: auto;margin-right: auto;">
 
- 
-  <div class="pt-3 pb-2 mb-3 ">
-    <h1 class="h2">Search by Course Name / ID</h1>
-    
-  </div>
     <div class="search">
         <input type="text" (keydown)="KeyDown($event)" [(ngModel)]="CourseId" 
         [matAutocomplete]="autoCity"
         name="CourseId"  class="searchTerm" placeholder="Course Id">
-        <button type="submit"  class="searchButton" (click)="SearchClicked()">
-            Search
+        <button type="submit"  class="searchButton" >
+          Course
         </button>
     </div>
     <div>
                     
         <mat-autocomplete #autoCity="matAutocomplete">
           <mat-option *ngFor="let course of filteredCoursesList "
-          (click) ="SearchClicked()"
+          (click) ="MatOptionClicked(course)"
           [value]="course.id">
             
             <span>{{ course.name }}</span> |
@@ -26,13 +20,3 @@
         </mat-autocomplete>
 </div>
 
-    <div>
-            <a href="/addcourse">Didn't find your course! Add it </a>
-    </div>
-  </div>
-
-<app-search-student-by-name>
-
-</app-search-student-by-name>
-
-<app-search-by-skill></app-search-by-skill>

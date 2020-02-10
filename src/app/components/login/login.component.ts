@@ -27,9 +27,7 @@ export class LoginComponent implements OnInit {
   image: string;
   isSuccess = false;
   resetMessage = '';
-  constructor(
-
-              private authservice: AuthService,
+  constructor( private authservice: AuthService,
               private router: Router,
               private firebaseService: FirebaseService,
               private modalService: NgbModal) {
@@ -39,6 +37,8 @@ export class LoginComponent implements OnInit {
 
     this.authservice.getAuth().subscribe( (auth) => {
       if (auth) {
+        // Here show the add Some content shit wala modal !
+        // better load all my data initially and then show modals! this is also a better idea!
         this.router.navigate(['/home']);
       }
     });

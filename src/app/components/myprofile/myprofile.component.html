@@ -52,8 +52,63 @@
       </div>
   </div>
 
+  <div class="mt-5" >
+     My Pinned Courses <span class="ml-3" 
+     ><i class="fa fa-edit" style="cursor: pointer;" id="myPinnedCoursesEdit" (click)="myPinnedCoursesEditClicked()"></i></span>
 
-    <div *ngIf="isMyUploadsDefined()">
+      <span  id="myPinnedCoursesSave"  class="showPostEditClick" style="float: right;display: none;">
+       <button class="btn btn-success" (click)="SaveMyPinnedCourses()">Save</button> </span>
+
+      <div id="myPinnedCoursesSearch" class="showPostEditClick px-md-5 my-3" style="display: none;">
+        <app-search  (addCourseToMyPinnedCourses)="addCourseToMyPinnedCourses($event)"></app-search>
+      </div>
+      <div class="row no-gutters justify-content-start">
+      <div *ngFor="let pinnedCourse of profile.myPinnedCourses"
+       class="col pinnedCourses mx-2"
+       style="position: relative;">
+        {{pinnedCourse.name}} | {{pinnedCourse.id}}
+  
+      </div>
+    </div>
+  </div>
+  <div class="mt-5" >
+    My Skills <span class="ml-3" 
+    ><i class="fa fa-edit" style="cursor: pointer;" id="mySkillsEdit" (click)="mySkillsEditClicked()"></i></span>
+
+     
+     <div id="mySkillsSearch" class=" px-md-5 my-3" style="display: none;">
+      <!-- Here Add the Skills wala matInput -->
+      <form class="example-form bd-callout-warning" >
+        <mat-form-field class="example-full-width">
+          <input matInput id="newSkillName"  placeholder="You Skill" value="Default">
+        </mat-form-field>
+        <mat-radio-group  aria-label="Select an option">
+          <mat-radio-button name="newSkillExpertiseLevel"  class="mx-3" value="1">Beginner</mat-radio-button>
+          <mat-radio-button name="newSkillExpertiseLevel"  class="mx-3" value="2">Intermediate</mat-radio-button>
+          <mat-radio-button name="newSkillExpertiseLevel" class="mx-3"value="3">expert</mat-radio-button>
+        </mat-radio-group>
+        <mat-form-field   class="example-full-width">
+          <textarea matInput id="newSkillDescription" placeholder="Description"></textarea>
+        </mat-form-field>
+        <button id="newSkillSaveBtn" class="btn btn-success" style="float: right;" (click)="SaveMySkills()">Save</button>
+      </form>
+     </div>
+     <div >
+     <div *ngFor="let skills of profile.mySkills"
+      class="pinnedCourses mx-2"
+      style="position: relative;">
+       {{skills.name}} | <span style="font-size: 12px;"> {{skills.expertiseLevel}}</span>
+       <div>
+        {{skills.description}}
+       </div>
+        
+     </div>
+   </div>
+ </div>
+
+ <mat-tab-group>
+  <mat-tab label="My Uploads" *ngIf="isMyUploadsDefined()"> 
+    <div >
       My Uploads
       <div *ngFor =" let content of profile.myUploads">
         <div class="bd-callout-warning ">
@@ -98,9 +153,11 @@
       </div>
      </div>
     </div>
+    </mat-tab>
 
-    <div *ngIf="isMyReviewsDefined()">
-        My Reviews
+    <mat-tab label="My Reviews" *ngIf="isMyReviewsDefined()">
+      <div >
+       
         <div *ngFor="let review of profile.myReviews">
             <div class="bd-callout-warning ">
                     <div >
@@ -145,5 +202,13 @@
             </div>
         </div>
     </div>
+    </mat-tab>
+    <mat-tab label="My Uploads" *ngIf="true"> 
+      <!-- make it lazy loading! and also add a floating number head for number of notifications! -->
+      </mat-tab>
+</mat-tab-group>
+
+
+
   </div>
   

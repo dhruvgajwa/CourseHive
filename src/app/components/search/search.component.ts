@@ -1,19 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { Course } from 'src/app/Models/Course';
 import { Observable, merge } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import {SearchService } from '../../services/search.service';
-import * as data  from '../../../../EvenSem.json';
-// look for this file u4
+//import * as data  from '../../../../u4.json';
 
 @Component({
-  selector: 'app-homepage',
-  templateUrl: './homepage.component.html',
-  styleUrls: ['./homepage.component.css']
+  selector: 'app-search',
+  templateUrl: './search.component.html',
+  styleUrls: ['./search.component.css']
 })
-export class HomepageComponent implements OnInit {
+export class SearchComponent implements OnInit {
+  @Output() addCourseToMyPinnedCourses = new EventEmitter();
+
   CourseId: string = '';
   total: number = 0;
   done: number = 0;
@@ -45,17 +46,18 @@ export class HomepageComponent implements OnInit {
   }
 
   KeyDown($event) {
+
+
+
+
+
+    // als here we are initiating the autoocomplete
+    console.log($event);
     if ($event.key === 'Enter') {
       this.SearchClicked();
       return;
     }
-    if($event.keyCode < 65 || $event.keyCode > 105) {
-      return;
-    }
-// als here we are initiating the autoocomplete
-    console.log($event);
-    
-    if ($event.timeStamp - this.lastKeypress > 50) {  
+    if ($event.timeStamp - this.lastKeypress > 100) {
       let q =  this.setFirstLetterCapital($event.target.value);
       
      
@@ -63,13 +65,14 @@ export class HomepageComponent implements OnInit {
       // .subscribe(res => {
       //     this.filteredCourseString = res;
       //     console.log(res);
+      //   });
     //   this.filteredCourses = this.searchService.searchCouseByName(q);
     // this.filteredCourses= merge(this.searchService.searchCouseByName(q),
     // this.searchService.searchCourseByID(q.toUpperCase()));
       
       console.log(q, q.toUpperCase())
       
-    this.searchService.searchCouseByNameInRealtimeDB(q).subscribe( (res:Course[]) => {
+    this.searchService.searchCouseByName(q).subscribe( res => {
       res.forEach(m => {
         console.log(m['name'])
         this.filteredCoursesList.push(m);
@@ -83,10 +86,10 @@ export class HomepageComponent implements OnInit {
       
     });
     
-    //Add index in security file!
+
     if(q.length < 7 ) {
-      this.searchService.searchCourseByIDInRealtimeDB(q.toUpperCase()).subscribe( res => {
-        res.forEach((m: Course) => {
+      this.searchService.searchCourseByID(q.toUpperCase()).subscribe( res => {
+        res.forEach(m => {
           console.log(m['id']);
           this.filteredCoursesList.push(m);
           if(this.filteredCoursesList.length  >5){
@@ -131,47 +134,6 @@ export class HomepageComponent implements OnInit {
 
   //   }
   //  }
-
-
-
-  // A script to write the course data into the realtime database
-
-// uploadCourseInRealtimeDB(){
-   
-//     this.total = data.default.length;
-//     console.log(this.total);
-//     const coursesList = data.default;
-//     let course: Course = new Course();
-
-//     for( let i = 0; i < coursesList.length ; i++) {
-//     course = new Course();
-//     // tslint:disable-next-line: no-string-literal
-//     course.id = coursesList[i]['Course No'];
-//     course.credits = coursesList[i]['New Credit'];
-//     course.instructerName = coursesList[i]['Instructor Name'];
-//     course.maxStrength = coursesList[i]['Maxoverallstrength'];
-//     course.name = coursesList[i]['Course Name'];
-//     course.offeredForBTechDD = coursesList[i]['OfferedforBTechDD'];
-//     course.preq = coursesList[i]['Prereq'];
-//     course.room = coursesList[i]['Room'].toString();
-//     course.slot = coursesList[i]['Slot'];
-//     course.additionalSlot = coursesList[i]['Additional Slot'];
-//     console.log(course);
-
-//    try {
-//     this.firebaseService.AddACourseToRealtimeDatabase(course).then( _ => {
-//       this.done = this.done + 1 ;
-//       console.log(this.done , 'Added');
-//     }).catch(e => {
-//       console.log(e);
-//     });
-//    } catch ( e) {
-//      console.log(e);
-//    }
-
-//     }
-// }
-
   setFirstLetterCapital(s: string): string {
     let p : string;
   
@@ -183,5 +145,8 @@ export class HomepageComponent implements OnInit {
   
   }
 
-  // check if the user has not uploaded any document, as him/her to do so! And also add some other shit!
+  MatOptionClicked(course: Course) {
+    this.addCourseToMyPinnedCourses.emit(course);
+  }
+
 }

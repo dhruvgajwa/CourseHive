@@ -7,8 +7,11 @@ import { LoginComponent } from './components/login/login.component';
 import { FormsModule } from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { AuthService} from './services/auth.service';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFireModule } from 'angularfire2';
+import {AngularFireDatabaseModule} from '@angular/fire/database';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireStorageModule } from '@angular/fire/storage';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { HomepageComponent } from './components/homepage/homepage.component';
 import { AuthGaurd} from '../app/Gaurd/auth.gaurd';
@@ -16,16 +19,21 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatInputModule } from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon'; 
 import { MatMenuModule} from '@angular/material/menu'; 
-import { AngularFireStorageModule } from 'angularfire2/storage';
-import { from } from 'rxjs';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { CourseDetailsComponent } from './components/course-details/course-details.component';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { FirebaseService} from './services/firebase.service';
 import { AddACourseComponent } from './components/add-acourse/add-acourse.component';
 import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { MyprofileComponent } from './components/myprofile/myprofile.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { SearchComponent } from './components/search/search.component';
+import { SkillSearchComponent } from './components/skill-search/skill-search.component';
+import { AddSkillComponent } from './temoraryComponents/add-skill/add-skill.component';
+import { SearchStudentByNameComponent } from './temoraryComponents/search-student-by-name/search-student-by-name.component';
+import { SearchBySkillComponent } from './temoraryComponents/search-by-skill/search-by-skill.component';
+import { SkillDetailsComponent } from './components/skill-details/skill-details.component';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -33,11 +41,20 @@ const appRoutes: Routes = [
   {path: 'course/:id', component: CourseDetailsComponent, canActivate: [AuthGaurd] },
   {path: 'addcourse', component: AddACourseComponent, canActivate: [AuthGaurd]},
   { path: 'verifyEmail', component: VerifyEmailComponent, canActivate: [AuthGaurd]  },
+  { path: 'skillSearch', component: SkillSearchComponent, canActivate: [AuthGaurd]  },
   { path: 'myprofile', component: MyprofileComponent, canActivate: [AuthGaurd] },
-  { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGaurd] }
+  { path: 'searchStudent', component: SearchStudentByNameComponent, canActivate: [AuthGaurd] },
+  { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGaurd] },
+  { path: 'addNewSkill', component: AddSkillComponent, canActivate: [AuthGaurd] }
 ];
 const firebaseConfig = {
-  
+  apiKey: 'AIzaSyDTH-g81IT0-2k6YjDoWadDqpp8YSV1on0',
+  authDomain: 'coursehiveiitm.firebaseapp.com',
+  databaseURL: 'https://coursehiveiitm.firebaseio.com',
+  projectId: 'coursehiveiitm',
+  storageBucket: 'gs://coursehiveiitm.appspot.com',
+  messagingSenderId: '942581340538',
+  appId: '1:942581340538:web:5e65ccc75d0ccc5773dec3'
 };
 
 @NgModule({
@@ -48,17 +65,29 @@ const firebaseConfig = {
     NavbarComponent,
     HomepageComponent,
     CourseDetailsComponent,
+
     AddACourseComponent,
     VerifyEmailComponent,
     MyprofileComponent,
     FooterComponent,
-    ProfileComponent
+    ProfileComponent,
+    SearchComponent,
+    SkillSearchComponent,
+    AddSkillComponent,
+    SearchStudentByNameComponent,
+    SearchBySkillComponent,
+    SkillDetailsComponent
   ],
   imports: [BrowserAnimationsModule,
     NgbModule,
     MatTabsModule,
     MatInputModule,
+    AngularFireAuthModule,
+    MatRadioModule,
+    AngularFireDatabaseModule,
     MatMenuModule,
+    AngularFirestoreModule,
+    MatAutocompleteModule,
     MatIconModule,
     AngularFireStorageModule,
     BrowserModule,
@@ -66,10 +95,9 @@ const firebaseConfig = {
     RouterModule.forRoot(appRoutes, { scrollPositionRestoration: 'enabled', onSameUrlNavigation: 'reload' }),
     AngularFireModule.initializeApp(firebaseConfig),
   ],
-  providers: [AngularFireAuth,
+  providers: [
      AuthService,
       AuthGaurd,
-      AngularFirestore,
       FirebaseService
     ],
   bootstrap: [AppComponent]

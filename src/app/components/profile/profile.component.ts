@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { AuthService} from '../../services/auth.service';
 import { FirebaseService } from '../../services/firebase.service';
-import { Profile } from 'src/app/Models/Profile';
+import { Profile, MyPinnedCourses } from 'src/app/Models/Profile';
 import {ActivatedRoute, Params} from '@angular/router';
 import { Content, Review } from 'src/app/Models/Course';
 @Component({
@@ -29,6 +29,9 @@ export class ProfileComponent implements OnInit {
     this.firebaseService.getMyProfileData(this.myFId).subscribe( (_doc) => {
 
         this.profile = _doc;
+        // temporary
+      
+
 
         if (_doc !== undefined) {
           this.firebaseService.getUploadsById(this.myFId).subscribe( (data: Content[]) => {
