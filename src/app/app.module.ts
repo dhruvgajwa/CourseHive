@@ -34,6 +34,7 @@ import { AddSkillComponent } from './temoraryComponents/add-skill/add-skill.comp
 import { SearchStudentByNameComponent } from './temoraryComponents/search-student-by-name/search-student-by-name.component';
 import { SearchBySkillComponent } from './temoraryComponents/search-by-skill/search-by-skill.component';
 import { SkillDetailsComponent } from './components/skill-details/skill-details.component';
+import { LoadingBarModule } from '@ngx-loading-bar/core';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -45,6 +46,7 @@ const appRoutes: Routes = [
   { path: 'myprofile', component: MyprofileComponent, canActivate: [AuthGaurd] },
   { path: 'searchStudent', component: SearchStudentByNameComponent, canActivate: [AuthGaurd] },
   { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGaurd] },
+  { path: 'skill/:name', component: SkillDetailsComponent, canActivate: [AuthGaurd] },
   { path: 'addNewSkill', component: AddSkillComponent, canActivate: [AuthGaurd] }
 ];
 const firebaseConfig = {
@@ -82,6 +84,7 @@ const firebaseConfig = {
     NgbModule,
     MatTabsModule,
     MatInputModule,
+    LoadingBarModule,
     AngularFireAuthModule,
     MatRadioModule,
     AngularFireDatabaseModule,

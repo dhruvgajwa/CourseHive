@@ -31,8 +31,7 @@
     </div>
   </div>
 
-<app-search-student-by-name>
-
-</app-search-student-by-name>
-
-<app-search-by-skill></app-search-by-skill>
+<app-search-student-by-name></app-search-student-by-name>
+<div class="container">
+  <app-search-by-skill  (returnSkill)="returnSkill($event)"></app-search-by-skill>
+</div>

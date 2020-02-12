@@ -1,3 +1,5 @@
+import { StudentsInPinnedCourse } from './Profile';
+
 export class Course {
     slot: string;
     additionalSlot: string;
@@ -6,7 +8,6 @@ export class Course {
     preq: string;
     maxStrength: number;
     offeredForBTechDD: string;
-    
     id: string;
     name: string;
     instructerName: string;
@@ -129,5 +130,20 @@ export class Content {
         this.downVotes = 0;
         this.upVotedBy = [];
         this.downVotedBy = [];
+    }
+}
+
+
+export class PinnedCoursesCollectionObject{
+    name: string;
+    id: string;
+    totalStudents: number;
+    studentsPinnnedThisCourse: StudentsInPinnedCourse[];
+
+    constructor(){
+        this.name = '';
+        this.id = '';
+        this.totalStudents = 0;
+        this.studentsPinnnedThisCourse = [];
     }
 }

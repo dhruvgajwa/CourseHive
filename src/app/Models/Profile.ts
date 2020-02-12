@@ -24,6 +24,8 @@ export class Profile {
         this.myUploads = [];
         this.myReviews = [];
         this.mySkills = [];
+        this.myPinnedCourses = [];
+        this.myNotifications = [];
         this.myNewNotificationNumber = 0;
     }
 }
@@ -52,7 +54,7 @@ export class SKILLS {
     id: string;
     icon: string;
     students: StudentsInSkills[];
-    createdOn: string;
+    createdOn: number;
     studentsNo: number;
      /// how hot the skill is? The value should be out of 100,
      // create a dynamic algorithm to update the skill value and make
@@ -63,7 +65,7 @@ export class SKILLS {
         this.id = '';
         this.icon = '';
         this.students = [];
-        this.createdOn = '';
+        this.createdOn = 0;
         this.studentsNo = 0;
         this.skillValue = 0;
     }
@@ -111,13 +113,14 @@ export class MyPinnedCourses {
 export class MyNotifications {
     heading: string;
     body: string;
-    receivedOn: string;
+    receivedOn: number;
     clickLink: string;
 
     constructor(){
         this.heading = '';
         this.body = '';
-        this.receivedOn = '';
+        this.receivedOn = 0;
         this.clickLink = '';
     }
 }
+

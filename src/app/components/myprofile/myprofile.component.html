@@ -67,32 +67,47 @@
        class="col pinnedCourses mx-2"
        style="position: relative;">
         {{pinnedCourse.name}} | {{pinnedCourse.id}}
-  
+        <i class="fa fa-times removeMyPinnedCourse" (click)="RemoveThisPinnedCourse(pinnedCourse)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
       </div>
     </div>
   </div>
+
+
   <div class="mt-5" >
-    My Skills <span class="ml-3" 
-    ><i class="fa fa-edit" style="cursor: pointer;" id="mySkillsEdit" (click)="mySkillsEditClicked()"></i></span>
+    My Skills 
+    <span class="ml-3">
+      <i class="fa fa-edit" style="cursor: pointer;" id="mySkillsEdit" (click)="mySkillsEditClicked()"></i>
+    </span>
+    <!-- <span  id="mySkillsSave"  class="showOptionToEdit" style="float: right;display: none;">
+      <button class="btn btn-success" (click)="SaveMySkills()">Save</button> </span> -->
 
      
-     <div id="mySkillsSearch" class=" px-md-5 my-3" style="display: none;">
+    <div id="mySkillsSearch" class="" style="display: none;">
       <!-- Here Add the Skills wala matInput -->
-      <form class="example-form bd-callout-warning" >
-        <mat-form-field class="example-full-width">
-          <input matInput id="newSkillName"  placeholder="You Skill" value="Default">
-        </mat-form-field>
-        <mat-radio-group  aria-label="Select an option">
+      
+
+      <div class="example-form bd-callout-warning" >
+        <div class="example-full-width mb-3">
+          <input matInput id="newSkillName"  placeholder="You Skill" value="Default" style="display: none;">
+          <input matInput id="newSkillID"  placeholder="You Skill" value="Default" style="display: none;">
+          <app-search-by-skill  (returnSkill)="returnSkill($event)"></app-search-by-skill>
+        </div>
+        
+        <mat-radio-group   aria-label="Select an option">
           <mat-radio-button name="newSkillExpertiseLevel"  class="mx-3" value="1">Beginner</mat-radio-button>
           <mat-radio-button name="newSkillExpertiseLevel"  class="mx-3" value="2">Intermediate</mat-radio-button>
           <mat-radio-button name="newSkillExpertiseLevel" class="mx-3"value="3">expert</mat-radio-button>
         </mat-radio-group>
         <mat-form-field   class="example-full-width">
-          <textarea matInput id="newSkillDescription" placeholder="Description"></textarea>
+          <mat-label>Describe a bit about your projects so people can approach you!</mat-label>
+          <textarea matInput
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMaxRows="5" id="newSkillDescription" placeholder="Description"></textarea>
         </mat-form-field>
         <button id="newSkillSaveBtn" class="btn btn-success" style="float: right;" (click)="SaveMySkills()">Save</button>
-      </form>
-     </div>
+      </div>
+    </div>
      <div >
      <div *ngFor="let skills of profile.mySkills"
       class="pinnedCourses mx-2"
@@ -101,13 +116,13 @@
        <div>
         {{skills.description}}
        </div>
-        
+       <i class="fa fa-times removeMySkills" (click)="RemoveThisSkill(skills)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
      </div>
    </div>
  </div>
 
- <mat-tab-group>
-  <mat-tab label="My Uploads" *ngIf="isMyUploadsDefined()"> 
+ <mat-tab-group >
+  <mat-tab label="My Uploads" *ngIf="profile.myUploads.length > 0"> 
     <div >
       My Uploads
       <div *ngFor =" let content of profile.myUploads">
@@ -203,8 +218,26 @@
         </div>
     </div>
     </mat-tab>
-    <mat-tab label="My Uploads" *ngIf="true"> 
-      <!-- make it lazy loading! and also add a floating number head for number of notifications! -->
+
+    <mat-tab label="My Notification" *ngIf="profile.myNotifications.length > 0">
+      <div style="float: right;">
+        <button class="btn btn-sm btn-secondary" (click)="cleanNotifications();">Clean Notifications</button>
+      </div> 
+      <!-- make it lazy loading! and also add a floating number head for number of notifications!  also custom template-->
+      <div style="height: 12px;">
+
+      </div>
+      <div *ngFor="let notification of profile.myNotifications">
+        <div class="bd-callout-warning " style="position: relative;cursor: pointer;" (click)="handleNotificationClick(notification.clickLink)">
+            {{notification.heading}}
+            <div>
+              {{notification.body}}
+            </div>
+            <div style="position: absolute;right: 8px;bottom: 8px;">
+              {{getDate(notification.receivedOn)}}
+            </div>
+        </div>
+    </div>
       </mat-tab>
 </mat-tab-group>
 
@@ -212,3 +245,4 @@
 
   </div>
   
+  <button (click)="AddDemoNotification()">AddDemoNotification</button>

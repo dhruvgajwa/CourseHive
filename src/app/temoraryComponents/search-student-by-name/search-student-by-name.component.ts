@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SearchService} from  '../../services/search.service';
+import { Router} from '@angular/router';
 import { Profile } from 'src/app/Models/Profile';
 
 // remove after running the profiles upload wala script
@@ -17,12 +18,16 @@ export class SearchStudentByNameComponent implements OnInit {
   filteredStudents: Profile[] = [];
   lastKeypress: number = 0;
   
-  constructor(private searchService: SearchService, private afs: AngularFirestore, private db: AngularFireDatabase) { }
+  constructor(private searchService: SearchService, private afs: AngularFirestore, private db: AngularFireDatabase, private router: Router) { }
 
   ngOnInit() {
   }
 
-
+  MatOptionClicked(student: Profile){
+    let s = ''; // profile ID;
+    console.log('navigating');
+    this.router.navigate(['profile/' + student.fId ]);
+  }
 
   // Create a script to copy data from profile data in firestore to realtime database
 
@@ -31,7 +36,7 @@ export class SearchStudentByNameComponent implements OnInit {
    // als here we are initiating the autoocomplete
     console.log($event);
     if ($event.key === 'Enter') {
-     // this.SearchClicked();
+    //  this.MatOptionClicked();
       return;
     }
     if($event.keyCode < 65 || $event.keyCode > 105) {

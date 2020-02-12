@@ -1,14 +1,14 @@
 
-<div class="container mt-5" style="width: 600px;margin-left: auto;margin-right: auto;">
-    <div class=" pt-3 pb-2 mb-3">
+<div class="" style="margin-left: auto;margin-right: auto;">
+    <!-- <div class=" pt-3 pb-2 mb-3">
       <h1 class="h2">Search Students By Skill</h1>
       
-    </div>
+    </div> -->
     <div class="search">
       <input type="text" (keydown)="KeyDown($event)" [(ngModel)]="skillName" 
       [matAutocomplete]="autoSkill"
       name="CourseId"  class="searchTerm" placeholder="Skill in your mind">
-      <button type="submit"  class="searchButton" >
+      <button type="submit"  class="searchButton" (click)="SearchClicked()">
         Search
       </button>
   </div>

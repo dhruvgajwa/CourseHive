@@ -52,4 +52,7 @@ export class SearchService {
     return this.db.list<StudentsInSkills>(`skills/${skillID}/students`);
   }
   
+  getRealtimeDBid(){
+    return this.db.createPushId();
+  }
 }

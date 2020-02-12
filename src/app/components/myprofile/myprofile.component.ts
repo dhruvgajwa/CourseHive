@@ -1,54 +1,51 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService} from '../../services/auth.service';
 import { FirebaseService } from '../../services/firebase.service';
-import { Profile, MyPinnedCourses, StudentsInPinnedCourse, MySkills } from 'src/app/Models/Profile';
+import { Profile, MyPinnedCourses, StudentsInPinnedCourse, MySkills, SKILLS , StudentsInSkills, MyNotifications} from 'src/app/Models/Profile';
 import { Content, Review, Course } from 'src/app/Models/Course';
+import {LoadingBarService} from '@ngx-loading-bar/core';
+import { Router} from '@angular/router';
 
 @Component({
   selector: 'app-myprofile',
   templateUrl: './myprofile.component.html',
   styleUrls: ['./myprofile.component.css']
 })
+
+
+
 export class MyprofileComponent implements OnInit {
   profile: Profile = new Profile();
   myFId: string = '';
   karmaPoints: number = 0;
   reviews: number = 0;
   uploads: number = 0;
+  newlyPinnedCourses: MyPinnedCourses[]=[];
   constructor(private authService: AuthService,
-              private firebaseService: FirebaseService) { }
+              private firebaseService: FirebaseService,
+              private loadingBarService: LoadingBarService,
+              private router: Router) { }
 
   ngOnInit() {
     this.myFId =  this.authService.getMyFId();
+    this.loadingBarService.start();
     this.firebaseService.getMyProfileData(this.myFId).subscribe( (_doc) => {
-
         this.profile = _doc;
-        
-        let pinnedCourse = new MyPinnedCourses();
-        pinnedCourse.name = 'Signal And System';
-        pinnedCourse.id = 'EE11040';
-        pinnedCourse.pinnedAtDate = new Date().toUTCString();
-        this.profile.myPinnedCourses = [ pinnedCourse, pinnedCourse, pinnedCourse, pinnedCourse, pinnedCourse, 
-          pinnedCourse, pinnedCourse, pinnedCourse, pinnedCourse, pinnedCourse]
+        console.log(this.profile);
+      
+        if(this.profile.myPinnedCourses === undefined) {
+          this.profile.myPinnedCourses = [];
+        }
+        if(this.profile.myNotifications === undefined) {
+          this.profile.myNotifications = [];
+        }
 
-
-
-        let mySkill = new MySkills();  
-        mySkill.name = 'Angular';
-        mySkill.id = 'SomeID';
-        mySkill.description = ' I am noob in angular, and I am typing this piece of shit so that I can ' +
-          ' make this description look bigger! ';
-        mySkill.expertiseLevel = ' Intermediate';
-        mySkill.addedOnDate = new Date().getTime();
-
-
-        this.profile.mySkills = [ mySkill, mySkill, mySkill, mySkill, mySkill, mySkill]
         if (_doc !== undefined) {
+          this.loadingBarService.stop();
           this.firebaseService.getUploadsById(this.myFId).subscribe( (data: Content[]) => {
             if (data === undefined) {
               this.profile.myUploads = [];
             } else {
-
               this.profile.myUploads = data;
               this.calculate();
             }
@@ -63,10 +60,12 @@ export class MyprofileComponent implements OnInit {
             }
           });
         }
+
       } );
   }
   isMyUploadsDefined() {
     if (this.profile.myUploads !== undefined) {
+      console.log(this.profile.myUploads.length);
       if ( this.profile.myUploads.length > 0 ) {
         return true;
       } else {
@@ -90,8 +89,7 @@ export class MyprofileComponent implements OnInit {
   }
 
   getDate(n: number) {
-    let s: string = new Date(n).toDateString();
-    return s;
+    return new Date(n).toDateString();
   }
 
   DeleteReview(review: Review) {
@@ -163,6 +161,15 @@ export class MyprofileComponent implements OnInit {
       document.getElementById('myPinnedCoursesSearch').style.display = 'block';
       document.getElementById('myPinnedCoursesSave').style.display ='inline-block';
       document.getElementById('myPinnedCoursesEdit').style.display = 'none';
+     
+      let coll = document.getElementsByClassName('removeMyPinnedCourse');
+
+      for(let i =0; i<coll.length; i++) {
+        (coll.item(i) as HTMLElement).style.display = '';
+      }
+
+      // also show an option to remove courses from the list~
+      // 
     }
 
 
@@ -192,28 +199,54 @@ export class MyprofileComponent implements OnInit {
         studentInPinnedCourse.studentFID = this.profile.fId;
         studentInPinnedCourse.addedOn = new Date().getTime();
         // Now Add this studentInPinnedCOurse to backed
-        this.profile.myPinnedCourses.unshift(pc);
-
+        // here update to backend
+        this.firebaseService.savePinnedCourses(this.myFId,pc).then(()=> {
+          this.profile.myPinnedCourses.unshift(pc);
+          // now add myprofile to skill subset
+          this.firebaseService.AddStudentReferenceInPinnedCourse(studentInPinnedCourse,pc.id)
+        });
         // aso set the newly Added course background to some different color
       }
-
     }
+
     SaveMyPinnedCourses(){
       document.getElementById('myPinnedCoursesSearch').style.display = 'none';
       document.getElementById('myPinnedCoursesSave').style.display ='none';
       document.getElementById('myPinnedCoursesEdit').style.display = 'inline';
-      // SAve the pinned courses
+      // the courses are already saved to database! Here we are just changinf the display properties of objects 
     }
 
 
     mySkillsEditClicked(){
       document.getElementById('mySkillsSearch').style.display = 'block';
       document.getElementById('mySkillsEdit').style.display = 'none';
+
+      let coll = document.getElementsByClassName('removeMySkills');
+
+      for(let i =0; i<coll.length; i++) {
+        (coll.item(i) as HTMLElement).style.display = '';
+      }
     }
+
+    RemoveThisSkill(skill: MySkills){
+      this.firebaseService.removeSkillFromMySkills(this.myFId,skill).then( () => {
+        // remove me from my pinned Courses
+        this.firebaseService.removeMyStudentObjectAfterIRemoveASkill(this.myFId, skill.id).then( () => {
+          // remove this pinned course from my object
+          try {
+            this.profile.mySkills.splice(this.profile.mySkills.indexOf(skill,1));
+
+          } catch ( e) {
+            console.log(e);
+          }
+        });
+    });
+  }
 
     SaveMySkills(){
       let mySkill = new MySkills();
       mySkill.description = (document.getElementById('newSkillDescription') as HTMLInputElement).value;
+      mySkill.id = (document.getElementById('newSkillID') as HTMLInputElement).value;
       mySkill.name = (document.getElementById('newSkillName') as HTMLInputElement).value;
       var AllLevelRadioButtons = document.getElementsByName('newSkillExpertiseLevel');
      
@@ -222,17 +255,68 @@ export class MyprofileComponent implements OnInit {
             mySkill.expertiseLevel = (AllLevelRadioButtons[i] as HTMLInputElement).value;
           }
       }
-      mySkill.addedOnDate = new Date().getMilliseconds();
-      mySkill.id = ' Some I';
-      console.log(mySkill.expertiseLevel);;
-      document.getElementById('mySkillsSearch').style.display = 'block';
-      document.getElementById('mySkillsEdit').style.display = 'none';
-
-
+      mySkill.addedOnDate = new Date().getTime();
+      //   mySkill.id = ' Some I';
+      // document.getElementById('mySkillsSearch').style.display = 'block';
+      // document.getElementById('mySkillsEdit').style.display = 'none';
       this.profile.mySkills.unshift(mySkill);
       document.getElementById('mySkillsSearch').style.display = 'none';
       document.getElementById('mySkillsEdit').style.display = 'inline';
+
+      this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
+        console.log('added To My Skills');
+        let studentInSkill = new StudentsInSkills();
+        studentInSkill.name = this.profile.name;
+        studentInSkill.rollNo = this.profile.rollNo;
+        studentInSkill.addedOn = new Date().getTime();
+        studentInSkill.studentFId = this.myFId;
+        this.firebaseService.addStudentToSkill(studentInSkill,mySkill.id);
+      });    
+      // add this skill to MySkills
     }
 
+    RemoveThisPinnedCourse(pinnedCourse: MyPinnedCourses){
+      this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
+        // remove me from my pinned Courses
+        this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {
+          // remove this pinned course from my object
+          try {
+            this.profile.myPinnedCourses.splice(this.profile.myPinnedCourses.indexOf(pinnedCourse,1));
+
+          } catch ( e) {
+            console.log(e);
+          }
+        })
+      });
+    }
+    
+    // to handle event emitter from the skill searh component
+    returnSkill(skill: SKILLS){
+      (document.getElementById('newSkillName') as HTMLInputElement).value = skill.name;
+      (document.getElementById('newSkillID') as HTMLInputElement).value = skill.id;
+    }
     // My Skills
+
+
+
+    AddDemoNotification(){
+      let notification = new MyNotifications();
+      notification.body = ' Dhruv Gajwa has added a new review to the course EE1011 ! Go and check it out!';
+      notification.heading  = 'Content update for EE1011';
+      notification.receivedOn = new Date().getTime();
+      notification.clickLink = 'http://localhost:4200/course/EE1101';
+
+      this.profile.myNotifications.push(notification);
+    }
+
+    handleNotificationClick(link: string){
+      window.open(link);
+    }
+
+    cleanNotifications(){
+      this.profile.myNotifications = [];
+      this.firebaseService.cleanNotifications(this.myFId);
+    }
+
+   
 }

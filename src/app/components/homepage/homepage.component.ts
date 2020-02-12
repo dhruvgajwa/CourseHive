@@ -6,6 +6,7 @@ import { Observable, merge } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import {SearchService } from '../../services/search.service';
 import * as data  from '../../../../EvenSem.json';
+import { SKILLS } from 'src/app/Models/Profile';
 // look for this file u4
 
 @Component({
@@ -181,6 +182,9 @@ export class HomepageComponent implements OnInit {
     console.log(p);
     return p;
   
+  }
+  returnSkill(skill: SKILLS){
+    this.router.navigate(['/skill/'+ skill.name]);
   }
 
   // check if the user has not uploaded any document, as him/her to do so! And also add some other shit!

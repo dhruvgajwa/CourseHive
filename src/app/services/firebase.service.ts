@@ -3,7 +3,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
 import { firestore } from 'firebase';
 import { FAQ, Answer, Content, Review, Course } from '../Models/Course';
-import { Profile, SKILLS, StudentsInSkills, MySkills, MyNotifications } from '../Models/Profile';
+import { Profile, SKILLS, StudentsInSkills, MySkills, MyNotifications, MyPinnedCourses, StudentsInPinnedCourse } from '../Models/Profile';
 import {AngularFireDatabase } from '@angular/fire/database';
 
 @Injectable({
@@ -374,15 +374,30 @@ export class FirebaseService {
 
   // not tested
   addStudentToSkill(student: StudentsInSkills,skillID: string){
-    return this.db.list<StudentsInSkills>(`skills/${skillID}/students`).set(student.studentFId, Object.assign({},student));
+    return this.db.list<StudentsInSkills>(`Skills/${skillID}/students`).set(student.studentFId, Object.assign({},student));
 
 
   }
   // after addStudentToSkill add the skill to Student
   addSkillInStudentData(mySkill: MySkills, myFirebaseID: string){
     // adding in firestore document
-    this.afs.collection('Profiles').doc(myFirebaseID).collection('mySkills').doc(mySkill.name).set(Object.assign({mySkill}));
-    
+
+    // or store it as a json strin?
+    return this.afs.collection('Profiles').doc(myFirebaseID).update(
+      {
+        mySkills: firestore.FieldValue.arrayUnion(Object.assign({},mySkill))
+      }
+    )
+   
+  }
+  
+  removeSkillFromMySkills(myFID: string, skill: MySkills){
+    return this.afs.collection('Profiles').doc(myFID).update({
+      mySkills: firestore.FieldValue.arrayRemove(Object.assign({},skill))
+    })
+  }
+  removeMyStudentObjectAfterIRemoveASkill(myFirebaseID: string,skillID: string){
+       return this.db.list<StudentsInSkills>(`Skills/${skillID}/students`).remove(myFirebaseID);
   }
 
   //search Students in a specific Skill
@@ -415,5 +430,33 @@ export class FirebaseService {
     );
   }
 
+  // Get skill with details
+  getSkillByName(name: string){
+    return this.db.object(`Skills/${name}`).valueChanges();
+  }
+
   // 
+  savePinnedCourses(myFID:string, pinnedCourse: MyPinnedCourses){
+   return this.afs.collection('Profiles').doc(myFID).update({
+      myPinnedCourses: firestore.FieldValue.arrayUnion(Object.assign({},pinnedCourse)) // update multiple pin coourses at the same time
+    })
+  }
+
+  AddStudentReferenceInPinnedCourse(s: StudentsInPinnedCourse, courseID: string){
+    // PinnedCoursesList/courseID/syudentsPinnedThisCourse/
+   return this.db.list(`PinnedCoursesList/${courseID}/studentsPinnnedThisCourse`).set(s.studentFID, Object.assign({},s));
+  }
+
+
+  removeMyStudentObjectAfterIunpinACourse(courseID: string, myFID: string){
+    return this.db.object(`PinnedCoursesList/${courseID}/studentsPinnedThisCourse/${myFID}`).remove();
+  }
+
+  removeCourseFromMyPinnedCourses(myFID: string, pc: MyPinnedCourses){
+    return this.afs.collection('Profiles').doc(myFID).update({
+      myPinnedCourses: firestore.FieldValue.arrayRemove(Object.assign({},pc)) // update multiple pin coourses at the same time
+    })
+  }
+
 }
+

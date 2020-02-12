@@ -21,7 +21,7 @@
         <mat-autocomplete #autoStudent="matAutocomplete">
           <mat-option *ngFor="let student of filteredStudents "
           (click) ="MatOptionClicked(student)"
-          [value]="student.rollNo">
+          [value]="student.fId">
             <span>
                 <img src="{{student.image}}" alt="{{student.rollNo}}" style="height: 64px;width: 64px;">
             </span>
