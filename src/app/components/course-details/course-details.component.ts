@@ -10,6 +10,7 @@ import { finalize } from 'rxjs/operators';
 import { auth } from 'firebase';
 import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { MyNotifications } from 'src/app/Models/Profile';
 
 @Component({
   selector: 'app-course-details',
@@ -60,8 +61,10 @@ export class CourseDetailsComponent implements OnInit {
 
     });
     this.activatedRoutes.params.subscribe( (params: Params) => {
+      
       this.courseId = params.id;
       console.log(params.id);
+      
       this.firebaseService.getCourseDetailsById(this.courseId).subscribe((data: Course) => {
         if (data === undefined) {
           // Course is not Available in database
@@ -76,6 +79,7 @@ export class CourseDetailsComponent implements OnInit {
         this.course.reviews = data;
         console.log(this.course);
       });
+
       this.firebaseService.getCourseFAQsById(this.courseId).subscribe((data: FAQ[]) => {
         this.course.fAQs = data;
         this.course.fAQs.forEach((que: FAQ) => {
@@ -88,7 +92,6 @@ export class CourseDetailsComponent implements OnInit {
         this.course.contents = data;
         console.log(data);
       });
-
 
     });
   }
@@ -316,7 +319,29 @@ export class CourseDetailsComponent implements OnInit {
           console.log(s);
           this.uploadContent.documentAddress = s;
           this.uploadContent.fId = this.afs.createId();
-          this.firebaseService.UploadContent(this.uploadContent, this.courseId).then(_ => {
+          this.firebaseService.UploadContent(this.uploadContent, this.courseId).then( _ => { 
+            // content has been uploaded!
+            // now send a async request to send notification to all the 
+            // peopl who have upinned this course
+
+            // first create a notification string .. aslo this code has not been tested yet!! so please check it.....
+            let notification = new MyNotifications();
+            notification.clickLink = window.location.href;
+            notification.body = `A new resouorse has been added in your pinned  course ${this.courseId.toUpperCase()}: ${this.course.name}
+             by ${this.auth.displayName} ... so go and check it out! hurray...!!`;
+            notification.heading = `Resource update for ${this.courseId.toUpperCase()}: ${this.course.name}`;
+            notification.receivedOn = new Date().getTime();
+
+            // now send this notification to all pinned people
+            this.firebaseService.getAllStudentPinnedThisCourse(this.courseId).subscribe( res => {
+              // this response is an object
+              let allList = Object.values(res);
+              console.log(allList, res, typeof(res));
+              allList.forEach(student => {
+                this.firebaseService.addNotificationToStudent(student['studentFID'], notification);
+              });
+              
+            })
             this.isImageUploaded = false;
             this.downloadURL = null;
             this.modalService.dismissAll();

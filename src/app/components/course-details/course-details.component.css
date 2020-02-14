@@ -18,6 +18,15 @@
     text-align: left;
 }
 
+.example-form {
+	min-width: 300px;
+	max-width: 500px;
+	width: 100%;
+  }
+  
+  .example-full-width {
+	width: 100%;
+  }
 .feedback-input {
     background: #fff;
 	box-shadow: 0;

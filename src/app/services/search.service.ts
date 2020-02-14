@@ -55,4 +55,7 @@ export class SearchService {
   getRealtimeDBid(){
     return this.db.createPushId();
   }
+
+  
+
 }

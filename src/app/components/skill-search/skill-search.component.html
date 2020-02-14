@@ -10,7 +10,7 @@
     <div>
                     
         <mat-autocomplete #autoSkill="matAutocomplete">
-          <mat-option *ngFor="let skill of filteredSkillList | async"
+          <mat-option *ngFor="let skill of filteredSkillList "
           (click) ="MatOptionClicked(skill)"
           [value]="skill.id">
             

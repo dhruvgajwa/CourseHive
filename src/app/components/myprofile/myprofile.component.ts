@@ -317,6 +317,11 @@ export class MyprofileComponent implements OnInit {
       this.profile.myNotifications = [];
       this.firebaseService.cleanNotifications(this.myFId);
     }
+    checkGettingAllStudentsPinnedThisCOurse(){
+      this.firebaseService.getAllStudentPinnedThisCourse('EE1101').subscribe(res => {
+        console.log(res);
+      })
+    }
 
    
 }

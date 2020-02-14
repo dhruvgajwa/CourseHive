@@ -53,21 +53,12 @@ export class HomepageComponent implements OnInit {
     if($event.keyCode < 65 || $event.keyCode > 105) {
       return;
     }
-// als here we are initiating the autoocomplete
+
     console.log($event);
     
     if ($event.timeStamp - this.lastKeypress > 50) {  
       let q =  this.setFirstLetterCapital($event.target.value);
-      
-     
-    //  this.filteredCourses=  this.searchService.searchCouseByName(q.toUpperCase()); 
-      // .subscribe(res => {
-      //     this.filteredCourseString = res;
-      //     console.log(res);
-    //   this.filteredCourses = this.searchService.searchCouseByName(q);
-    // this.filteredCourses= merge(this.searchService.searchCouseByName(q),
-    // this.searchService.searchCourseByID(q.toUpperCase()));
-      
+
       console.log(q, q.toUpperCase())
       
     this.searchService.searchCouseByNameInRealtimeDB(q).subscribe( (res:Course[]) => {
@@ -77,14 +68,11 @@ export class HomepageComponent implements OnInit {
         if(this.filteredCoursesList.length  >5){
           this.filteredCoursesList.shift();
         }
-      
-      //  console.log(m['name'])
       });
 
       
     });
     
-    //Add index in security file!
     if(q.length < 7 ) {
       this.searchService.searchCourseByIDInRealtimeDB(q.toUpperCase()).subscribe( res => {
         res.forEach((m: Course) => {

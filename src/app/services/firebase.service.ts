@@ -417,7 +417,7 @@ export class FirebaseService {
   addNotificationToStudent(studentFID: string, notification:MyNotifications ) {
     this.afs.collection('Profiles').doc(studentFID).update(
       {
-        myNotifications: firestore.FieldValue.arrayUnion(notification)
+        myNotifications: firestore.FieldValue.arrayUnion(Object.assign({},notification))
       }
     );
   }
@@ -444,7 +444,7 @@ export class FirebaseService {
 
   AddStudentReferenceInPinnedCourse(s: StudentsInPinnedCourse, courseID: string){
     // PinnedCoursesList/courseID/syudentsPinnedThisCourse/
-   return this.db.list(`PinnedCoursesList/${courseID}/studentsPinnnedThisCourse`).set(s.studentFID, Object.assign({},s));
+   return this.db.list(`PinnedCoursesList/${courseID}/studentsPinnedThisCourse`).set(s.studentFID, Object.assign({},s));
   }
 
 
@@ -457,6 +457,9 @@ export class FirebaseService {
       myPinnedCourses: firestore.FieldValue.arrayRemove(Object.assign({},pc)) // update multiple pin coourses at the same time
     })
   }
-
+  getAllStudentPinnedThisCourse(courseID: string) {
+    console.log(courseID);
+    return this.db.list(`PinnedCoursesList/${courseID.toUpperCase()}/studentsPinnedThisCourse`).valueChanges();
+  }
 }
 

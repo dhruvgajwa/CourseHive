@@ -31,7 +31,6 @@
                                         Download
                                     </i></button>
                                 </div>
-                              
                             </div>
                             <div class="row justify-content-between mt-2">
                                 <div class="col text-left">
@@ -46,12 +45,9 @@
                                 </div>
                                 <div (click)="openProfile(content.uploadedByFId)" class="col text-right pointer">
                                          {{content.uploadedByName}}(<span class="text-muted" style="font-size: small">{{content.uploadedByRollNo}}</span>) 
-                                                        : {{getDate(content.uploadedAt)}}
-                                     
+                                                        : {{getDate(content.uploadedAt)}}                                    
                                 </div>
-                                
                                
-                                
                             </div>
                     </div>
                 </div>
@@ -305,24 +301,31 @@
                         Document Type:
                     </div>
                     <div class="col">
-                            <select id="documentType" name="uploadContent.documentType"
+                        <form class="example-form">
+                            <mat-form-field style="min-width: 300px;" >
+                                <textarea  matInput 
+                                [(ngModel)]="uploadContent.documentType"
+                                placeholder="document description "
+                                name="documentType"
+                                type="text" id="OtherdocumentType">
+                            </textarea>
+                            </mat-form-field>
+                        </form>
+
+                            <!-- change the select tag to make it better uploadContent.documentType -->
+                            <!-- <select id="documentType" name="uploadContent.documentType"
                             [(ngModel)]="uploadContent.documentType">
-                               <option [ngValue]="undefined" disabled>Select Tag</option>
-                               
+                               <option [ngValue]="undefined" disabled>Select Tag</option>            
                                <option *ngFor="let tag of DocumentTypeOptions" [value]="tag" style="font-size:14px; ">{{tag}}</option>
-                               
-                        
-                            </select>
-                            <div *ngIf="uploadContent.documentType === 'Other'">
-                                    <mat-form-field >
-                                            <input matInput 
-                                            [(ngModel)]="IfOtherDocType"
-                                            placeholder="documentType. . . "
-                                            type="text" id="OtherdocumentType"
-                                            >
-                                        </mat-form-field>
-                            </div>
-                            
+                            </select> -->
+                            <!-- <div *ngIf="uploadContent.documentType === 'Other'">
+                                <mat-form-field >
+                                        <input matInput 
+                                        [(ngModel)]="IfOtherDocType"
+                                        placeholder="documentType. . . "
+                                        type="text" id="OtherdocumentType">
+                                </mat-form-field>
+                            </div>   -->
                     </div>
                 </div>
 

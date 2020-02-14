@@ -1,4 +1,8 @@
-  <div class="container mt-5" style="width: 600px;margin-left: auto;margin-right: auto;">
+<!-- can you add something for perfect match highlght? 
+would be best though!! set it to index one  -->
+ 
+ 
+ <div class="container mt-5" style="width: 600px;margin-left: auto;margin-right: auto;">
 
  
   <div class="pt-3 pb-2 mb-3 ">
@@ -32,6 +36,10 @@
   </div>
 
 <app-search-student-by-name></app-search-student-by-name>
-<div class="container">
+<div class="container mt-5" style="width: 600px;margin-left: auto;margin-right: auto;">
+  <div class=" pt-3 pb-2 mb-3">
+    <h1 class="h2">Search for a skill</h1>
+    
+  </div>
   <app-search-by-skill  (returnSkill)="returnSkill($event)"></app-search-by-skill>
 </div>
