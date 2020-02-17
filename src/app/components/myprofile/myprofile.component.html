@@ -109,19 +109,40 @@
       </div>
     </div>
      <div >
-     <div *ngFor="let skills of profile.mySkills"
-      class="pinnedCourses mx-2"
-      style="position: relative;">
-       {{skills.name}} | <span style="font-size: 12px;"> {{skills.expertiseLevel}}</span>
-       <div>
-        {{skills.description}}
+       <div *ngIf="profile.mySkills.length ===0" class="bg-danger p-2 mt-2">
+
+        <div class="row justify-content around">
+          <div class="col">
+            <strong> <h4 style="color: white;">No Skills Mentioned</h4></strong>
+          
+          </div>
+          <div class="col" style="cursor: pointer;" (click)="mySkillsEditClicked()">
+            <strong style="float: right;"> <h5 style="color: white;" >Add</h5></strong>
+         
+          </div>
+        </div>
+
+          
+         
+         
        </div>
-       <i class="fa fa-times removeMySkills" (click)="RemoveThisSkill(skills)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
-     </div>
-   </div>
+      <div *ngFor="let skills of profile.mySkills"
+        class="pinnedCourses mx-2"
+        style="position: relative;">
+        {{skills.name}} | <span style="font-size: 12px;"> {{skills.expertiseLevel}}</span>
+        <div>
+          {{skills.description}}
+        </div>
+        <i class="fa fa-times removeMySkills" (click)="RemoveThisSkill(skills)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
+      </div>
+    </div>
  </div>
 
- <mat-tab-group >
+ <div class="mt-5">
+
+ </div>
+
+ <mat-tab-group  >
   <mat-tab label="My Uploads" *ngIf="profile.myUploads.length > 0"> 
     <div >
       My Uploads

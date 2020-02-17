@@ -263,6 +263,11 @@ export class MyprofileComponent implements OnInit {
       document.getElementById('mySkillsSearch').style.display = 'none';
       document.getElementById('mySkillsEdit').style.display = 'inline';
 
+      // also check if the skil is already existing? 
+      // maybe set the id as some recognisable shit and onto that add some shit! will make sense thought!
+      
+
+
       this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
         console.log('added To My Skills');
         let studentInSkill = new StudentsInSkills();
