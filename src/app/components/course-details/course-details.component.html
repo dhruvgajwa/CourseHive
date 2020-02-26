@@ -1,7 +1,7 @@
 <div class="container">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div style="position: relative;" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="h2">{{course.id}} : {{course.name}}</h1>
-                
+                <button (click)="pinThisCourse()" class="btn btn-success"> <i class="fa fa-thumbtack"></i> <span id="coursePinButton" ></span></button>
             </div>
     <mat-tab-group>
         <mat-tab label="CourseContent"> 

@@ -10,8 +10,10 @@ import { finalize } from 'rxjs/operators';
 import { auth } from 'firebase';
 import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { MyNotifications } from 'src/app/Models/Profile';
+import { MyNotifications, Profile, MyPinnedCourses, StudentsInPinnedCourse } from 'src/app/Models/Profile';
+import {DataSharingService} from '../../services/DataService/data-sharing.service';
 
+// So, there is no auth gaurd on this page, So, has to call the data
 @Component({
   selector: 'app-course-details',
   templateUrl: './course-details.component.html',
@@ -29,6 +31,7 @@ export class CourseDetailsComponent implements OnInit {
   IfOtherDocType: string = '';
   review:string = '';
   isEmailVerified = false;
+  profile:Profile = new Profile();
   DocumentTypeOptions: string[] = [ 'Quiz 1', 'Quiz 2', 'Midsem', 'Endsem', ' Assignments', 'Surprise Quiz', 'Project', 'Other'];
   course: Course = new Course();
   
@@ -46,7 +49,8 @@ export class CourseDetailsComponent implements OnInit {
                private modalService: NgbModal,
                private storage: AngularFireStorage,
                private router: Router,
-               private afs: AngularFirestore) { }
+               private afs: AngularFirestore,
+               private dataSharingService: DataSharingService) { }
 
   ngOnInit() {
     this.myFId = this.authService.getMyFId();
@@ -57,6 +61,50 @@ export class CourseDetailsComponent implements OnInit {
         console.log(this.auth);
         this.isEmailVerified = au.emailVerified;
 
+        console.log('data sharing service iss',this.dataSharingService.getProfileData());
+        if(this.dataSharingService.getProfileData() !== undefined) {
+          this.profile = this.dataSharingService.getProfileData();
+          if(this.profile.myPinnedCourses.length > 0) {
+            for (let index = 0; index < this.profile.myPinnedCourses.length; index++) {
+              const element = this.profile.myPinnedCourses[index];
+              
+              if(this.courseId === element.id){
+                document.getElementById('coursePinButton').innerText = `Unpin`;
+                break;
+              } else {
+                document.getElementById('coursePinButton').innerText = `Pin`;
+              }
+              
+            }
+          } else {
+            document.getElementById('coursePinButton').innerText = `Pin`;
+          }
+        } else {
+          this.firebaseService.getMyProfileData(this.auth.uid).subscribe ( res => {
+            this.profile = res;
+            console.log('res ponse reci', res);
+            this.dataSharingService.setProfileData(res);
+            // now set the profile dependent tags
+            if(this.profile.myPinnedCourses.length > 0) {
+              for (let index = 0; index < this.profile.myPinnedCourses.length; index++) {
+                const element = this.profile.myPinnedCourses[index];
+                
+                if(this.courseId === element.id){
+                  document.getElementById('coursePinButton').innerText = `Unpin`;
+                  break;
+                } else {
+                  document.getElementById('coursePinButton').innerText = `Pin`;
+                }
+                
+              }
+            } else {
+              document.getElementById('coursePinButton').innerText = `Pin`;
+            }
+
+           
+
+          })
+        }
       }
 
     });
@@ -509,5 +557,83 @@ export class CourseDetailsComponent implements OnInit {
          let ansewerIndex =  this.course.fAQs[questionIndex].answers.indexOf(answer);
           this.course.fAQs[questionIndex].answers.splice(ansewerIndex,1);
         });
+      }
+      getPinstatus(){
+        if(this.profile.myPinnedCourses === undefined){
+          return ``;
+        }
+        let listOfPinnedCourses = this.profile.myPinnedCourses;
+        for (let index = 0; index < listOfPinnedCourses.length; index++) {
+          const element = listOfPinnedCourses[index];
+          if(this.courseId === element.id){
+            return `Unpin`;
+            break;
+          } else {
+            return `Pin`;
+          }
+          
+        }
+        
+      }
+      pinThisCourse(){
+        let status =document.getElementById('coursePinButton').innerText;
+        // pin this   
+        console.log('pin clicked');
+        if(status ===  `Pin`) {
+          console.log('status is pinned!');
+          // Pin this course and set the status as UnPine
+          let pc = new MyPinnedCourses();
+          pc.id = this.courseId;
+          pc.name = this.course.name;
+          pc.pinnedAtDate = new Date().toUTCString(); 
+
+          let studentInPinnedCourse = new StudentsInPinnedCourse();
+          studentInPinnedCourse.name = this.profile.name;
+          studentInPinnedCourse.rollNo = this.profile.rollNo;
+          studentInPinnedCourse.studentFID = this.profile.fId;
+          studentInPinnedCourse.addedOn = new Date().getTime();
+
+
+          this.firebaseService.savePinnedCourses(this.myFId,pc).then(()=> {
+            this.profile.myPinnedCourses.unshift(pc);
+            console.log('this course is added to pinned courses!');
+            // also, check here if the innerhtml automatically gets converted to new status
+            document.getElementById('coursePinButton').innerText = `Unpin`;
+            // now add myprofile to skill subset
+            this.firebaseService.AddStudentReferenceInPinnedCourse(studentInPinnedCourse,pc.id)
+          });
+
+        } else {
+
+          let pinnedCourse = new MyPinnedCourses();
+          let listOfPinnedCourses = this.profile.myPinnedCourses;
+          for (let index = 0; index < listOfPinnedCourses.length; index++) {
+          const element = listOfPinnedCourses[index];
+              if(this.courseId === element.id){
+                pinnedCourse = element;
+                break;
+              } else {
+                
+              }
+          
+           }
+          // Unpin this course and set the status as Pin
+          // get this pinned course array
+         
+          this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
+            document.getElementById('coursePinButton').innerText = `Pin`;
+            // remove me from my pinned Courses
+            this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {
+              // remove this pinned course from my object
+              try {
+                this.profile.myPinnedCourses.splice(this.profile.myPinnedCourses.indexOf(pinnedCourse,1));
+    
+              } catch ( e) {
+                console.log(e);
+              }
+            })
+          });
+
+        }
       }
 }

@@ -10,9 +10,11 @@ import { FirebaseService } from '../../services/firebase.service';
 import $ from 'jquery';
 import { Profile } from 'src/app/Models/Profile';
 import { auth } from 'firebase';
-
-
-
+import { PushServiceService } from '../../services/Pushservice/push-service.service';
+// for notification
+import { SwPush , SwUpdate} from '@angular/service-worker';
+import {DataSharingService} from '../../services/DataService/data-sharing.service';
+import { environment} from '../../../environments/environment';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -30,10 +32,37 @@ export class LoginComponent implements OnInit {
   constructor( private authservice: AuthService,
               private router: Router,
               private firebaseService: FirebaseService,
-              private modalService: NgbModal) {
+              private modalService: NgbModal,
+              private swPush: SwPush,
+              private pushService: PushServiceService,
+              private updates: SwUpdate,
+              private dataSharingService: DataSharingService) {
   }
 
   ngOnInit() {
+    this.subscribeToPush();
+
+    this.updates.checkForUpdate();
+     // checking for update using service worker
+
+    this.updates.available.subscribe(event => {
+      console.log('current version is', event.current);
+      console.log('available version is', event.available);
+    });
+
+    this.updates.activated.subscribe(event => {
+      console.log('old version was', event.previous);
+      console.log('new version is', event.current);
+    });
+  
+
+    this.swPush.notificationClicks.subscribe(
+      ({action, notification}) => {
+          // TODO: Do something in response to notification click.
+          console.log(action, notification);
+          window.open(`https://mail.google.com/mail/u/0/#inbox`);
+      });
+
 
     this.authservice.getAuth().subscribe( (auth) => {
       if (auth) {
@@ -49,12 +78,13 @@ export class LoginComponent implements OnInit {
     const container = document.getElementById('container');
 
     signUpButton.addEventListener('click', () => {
-    container.classList.add('right-panel-active');
-  });
+      container.classList.add('right-panel-active');
+    });
 
     signInButton.addEventListener('click', () => {
-    container.classList.remove('right-panel-active');
-  });
+      container.classList.remove('right-panel-active');
+    });
+    
   }
 
 
@@ -116,6 +146,11 @@ Login(content: any) {
 
   this.authservice.login(this.email, this.password)
   .then((res: any) => {
+    console.log('USer data is =>',res);
+    this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (_doc: Profile) => {
+      console.log(_doc);
+      this.dataSharingService.setProfileData(_doc);
+    });
     this.modalService.open(content);
 
 
@@ -205,6 +240,59 @@ signUpUsingEmailAndPassword() {
   });
 }
 
+
+
+subscribeToPush() {
+
+  let convertedVapidKey = this.pushService.urlBase64ToUint8Array(environment.vapiKey);
+
+  navigator['serviceWorker']
+    .getRegistration('../../../app')
+    .then(registration => {
+
+      registration.pushManager
+        .subscribe({ userVisibleOnly: true, applicationServerKey: convertedVapidKey })
+        .then(pushSubscription => {
+          console.log(pushSubscription);
+          console.log(JSON.parse(JSON.stringify(pushSubscription)));
+          console.log(pushSubscription.toJSON());
+          console.log(pushSubscription.getKey('p256dh'));
+         // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
+          // this.pushService.addSubscriber(pushSubscription)
+          //   .subscribe(
+
+          //     res => {
+          //       console.log('[App] Add subscriber request answer', res)
+
+          //       let snackBarRef = this.snackBar.open('Now you are subscribed', null, {
+          //         duration: this.snackBarDuration
+          //       });
+          //     },
+          //     err => {
+          //       console.error('[App] Add subscriber request failed', err)
+          //     }
+
+          //   )
+
+        });
+
+    })
+    .catch(err => {
+      console.error(err);
+    })
+
+    try {
+      const sub =  this.swPush.requestSubscription({
+        serverPublicKey: environment.vapiKey,
+      }).then(res => {
+        console.log(res);
+      //  window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
+      }) ;
+      // TODO: Send to server.
+    } catch (err) {
+      console.error('Could not subscribe due to:', err);
+    }
+}
 
 
 }

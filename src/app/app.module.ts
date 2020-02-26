@@ -35,6 +35,8 @@ import { SearchStudentByNameComponent } from './temoraryComponents/search-studen
 import { SearchBySkillComponent } from './temoraryComponents/search-by-skill/search-by-skill.component';
 import { SkillDetailsComponent } from './components/skill-details/skill-details.component';
 import { LoadingBarModule } from '@ngx-loading-bar/core';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 const appRoutes: Routes = [
   {path: '', component: LoginComponent},
@@ -49,15 +51,7 @@ const appRoutes: Routes = [
   { path: 'skill/:name', component: SkillDetailsComponent, canActivate: [AuthGaurd] },
   { path: 'addNewSkill', component: AddSkillComponent, canActivate: [AuthGaurd] }
 ];
-const firebaseConfig = {
-  apiKey: 'AIzaSyDTH-g81IT0-2k6YjDoWadDqpp8YSV1on0',
-  authDomain: 'coursehiveiitm.firebaseapp.com',
-  databaseURL: 'https://coursehiveiitm.firebaseio.com',
-  projectId: 'coursehiveiitm',
-  storageBucket: 'gs://coursehiveiitm.appspot.com',
-  messagingSenderId: '942581340538',
-  appId: '1:942581340538:web:5e65ccc75d0ccc5773dec3'
-};
+
 
 @NgModule({
   declarations: [
@@ -93,10 +87,12 @@ const firebaseConfig = {
     MatAutocompleteModule,
     MatIconModule,
     AngularFireStorageModule,
-    BrowserModule,
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
     FormsModule,
     RouterModule.forRoot(appRoutes, { scrollPositionRestoration: 'enabled', onSameUrlNavigation: 'reload' }),
-    AngularFireModule.initializeApp(firebaseConfig),
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    RouterModule,
   ],
   providers: [
      AuthService,
