@@ -47,6 +47,10 @@ Thumbs.db
 
 .firebase/hosting.ZGlzdFxDb3Vyc2VIaXZl.cache
 VAPIDkey.txt
-functions/
+functions/node_modules
+functions/firebaseKey.json
+functions/Vapidkeys.js
 src/environments/
+
+
 
