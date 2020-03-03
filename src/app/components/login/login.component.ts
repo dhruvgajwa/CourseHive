@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-  
+    console.log(this.getBrowserName());
      // checking for update using service worker
 
     this.updates.available.subscribe(event => {
@@ -63,23 +63,41 @@ export class LoginComponent implements OnInit {
     this.swPush.notificationClicks.subscribe(
       ({action, notification}) => {
           // TODO: Do something in response to notification click.
+          
           console.log(action, notification);
           window.open(`https://mail.google.com/mail/u/0/#inbox`);
       });
 
 
+
+
+    // work is needed in thsi section of code!! Very Important
+    // Need to have separate endspoints for chrome, mozilla, and phone options!
+    //create the option tag
+    let option = this.getTheOptionForNotificationSubcriptionObjectStorageTag();
     this.authservice.getAuth().subscribe( (auth) => {
       if (auth) {
         // Here show the add Some content shit wala modal !
         // better load all my data initially and then show modals! this is also a better idea!
-
-        this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId()).subscribe( res => {
-          if(res === undefined){
+        
+        // check if the browser is chrome then reask for notification
+        this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(), option).subscribe( (res: string) => {
+          if(res === undefined || res === null) {
             console.log('res is undefindes');
+           
             // ask to please allow notification display!
             this.subscribeToPush();
           }
-          console.log(res);
+          // } else {
+          //   try {
+          //     if(res.includes('https://updates.push.services.mozilla.com/') && this.getBrowserName() === 'chrome') {
+          //       this.subscribeToPush();
+          //     }
+          //   } catch(e) {
+          //     console.log(e);
+          //   }
+          // }
+          // console.log(res);
         });
          this.router.navigate(['/home']);
       }
@@ -166,16 +184,15 @@ Login(content: any) {
     });
 
 
-    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId()).subscribe( res => {
+    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(), 
+      this.getTheOptionForNotificationSubcriptionObjectStorageTag()).subscribe( res => {
       if(res !== undefined){
         // ask to please allow notification display!
         this.subscribeToPush();
       }
     });
+
     this.modalService.open(content);
-
-
-    
     $('.check-icon').hide();
     setTimeout(function () {
     $('.check-icon').show();
@@ -183,7 +200,6 @@ Login(content: any) {
     //re route from where it came
     //or to home page
     console.log(res);
-
   }).catch((err: any) => {
     console.log(err);
     alert(err);
@@ -278,7 +294,8 @@ subscribeToPush() {
           console.log(pushSubscription.toJSON());
           console.log(JSON.stringify(pushSubscription));
           console.log(pushSubscription.getKey('p256dh'));
-          this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId()).then(res => {
+          this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
+          this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
             console.log(res)
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
@@ -310,7 +327,7 @@ subscribeToPush() {
         serverPublicKey: environment.vapiKey,
       }).then(res => {
         console.log(res);
-        this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(res), this.authservice.getMyFId());
+        this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(res), this.authservice.getMyFId(),this.getTheOptionForNotificationSubcriptionObjectStorageTag());
         console.log(JSON.stringify(res));
       //  window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
       }) ;
@@ -318,7 +335,36 @@ subscribeToPush() {
     } catch (err) {
       console.error('Could not subscribe due to:', err);
     }
-}
+  }
+  public getBrowserName() {
+    const agent = window.navigator.userAgent.toLowerCase()
+    switch (true) {
+      case agent.indexOf('edge') > -1:
+        return 'edge';
+      case agent.indexOf('opr') > -1 && !!(<any>window).opr:
+        return 'opera';
+      case agent.indexOf('chrome') > -1 && !!(<any>window).chrome:
+        return 'chrome';
+      case agent.indexOf('trident') > -1:
+        return 'ie';
+      case agent.indexOf('firefox') > -1:
+        return 'firefox';
+      case agent.indexOf('safari') > -1:
+        return 'safari';
+      default:
+        return 'other';
+    }
+  }
 
+  isMobile(){
+    var isMobile = /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);
+    return isMobile;
+  }
+
+  getTheOptionForNotificationSubcriptionObjectStorageTag(){
+    let s = this.isMobile() ? 'M':'D';
+    let s2 = this.getBrowserName();
+    return s + s2;
+  }
 
 }
