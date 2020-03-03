@@ -18,6 +18,11 @@ export class HomepageComponent implements OnInit {
   CourseId: string = '';
   total: number = 0;
   done: number = 0;
+  options = ['Courses', 'Students', 'Skills'];
+  searchByCourseDIV;
+  searchByStudentDIV;
+  searchBySkillDIV;
+  selectElement;
   filteredCoursesList:Course[] = [];
   lastKeypress: number = 0;
   filteredCourses:Observable<Course[]> = new Observable<Course[]>();
@@ -28,9 +33,31 @@ export class HomepageComponent implements OnInit {
    }
 
   ngOnInit() {
+    this.searchByCourseDIV = document.getElementById('searchByCourseDIV');
+    this.searchByStudentDIV = document.getElementById('searchByStudentDIV');
+    this.searchBySkillDIV = document.getElementById('searchBySkillDIV');
+    this.selectElement = document.getElementById('options');
 
   }
-
+  SelectOptionChanged(e: Event) {
+    const target = (e.target as HTMLSelectElement).value;
+    if(target === '0') {
+      this.searchByCourseDIV.style.display = '';
+      this.searchByStudentDIV.style.display = 'none';
+      this.searchBySkillDIV.style.display = 'none';
+    }
+    else if(target === '1') {
+      this.searchByCourseDIV.style.display = 'none';
+      this.searchByStudentDIV.style.display = '';
+      this.searchBySkillDIV.style.display = 'none';
+    }
+    else if(target === '2') {
+      this.searchByCourseDIV.style.display = 'none';
+      this.searchByStudentDIV.style.display = 'none';
+      this.searchBySkillDIV.style.display = '';
+    }
+    
+  }
   SearchClicked() {
     if (this.CourseId.length < 5) {
       alert('Not a Valid CourseId');
@@ -174,6 +201,7 @@ export class HomepageComponent implements OnInit {
   returnSkill(skill: SKILLS){
     this.router.navigate(['/skill/'+ skill.name]);
   }
+  
 
   // check if the user has not uploaded any document, as him/her to do so! And also add some other shit!
 }

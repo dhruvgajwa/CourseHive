@@ -1,28 +1,16 @@
-
 import { Injectable } from '@angular/core';
-
+import {AngularFireDatabase } from '@angular/fire/database';
+import { take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PushServiceService {
 
-  constructor() { }
-  // addSubscriber(subscription) {
-
-  //   const url = `${this.API_URL}/webpush`;
-  //   console.log('[Push Service] Adding subscriber')
-
-  //   let body = {
-  //     action: 'subscribe',
-  //     subscription: subscription
-  //   }
-
-  //   return this.http
-  //     .post(url, body)
-  //     .catch(this.handleError);
-
-  // }
+  constructor(private db: AngularFireDatabase) { 
+   
+  }
+ 
 
   urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -33,5 +21,14 @@ export class PushServiceService {
       outputArray[i] = rawData.charCodeAt(i);
     }
     return outputArray;
+  }
+
+  sendpushSubscriptionObjectToServer(pushSubscription: string, userID: string){  // pushSubscription has to be json string
+    // 
+    return this.db.object(`PushObject/${userID}`).set(pushSubscription);
+  }
+
+  getpushSubscriptionObjectFromServer(userID: string){
+     return this.db.object(`PushObject/${userID}`).valueChanges().pipe(take(1)); ;
   }
 }

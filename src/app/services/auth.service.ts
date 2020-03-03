@@ -31,6 +31,9 @@ export class AuthService {
       err => reject(err));
      });
    }
+   isEmailVerified(){
+    return this.afAuth.auth.currentUser.emailVerified;
+   }
 
 
    sendVerificationMail(email: string) {

@@ -1,6 +1,6 @@
 
     <div class="search">
-        <input type="text" (keydown)="KeyDown($event)" [(ngModel)]="CourseId" 
+        <input type="text" (input)="KeyDown($event)" [(ngModel)]="CourseId" 
         [matAutocomplete]="autoCity"
         name="CourseId"  class="searchTerm" placeholder="Course Id">
         <button type="submit"  class="searchButton" >

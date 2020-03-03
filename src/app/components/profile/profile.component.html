@@ -52,22 +52,45 @@
           </div>
       </div>
     
-    
-        <div *ngIf="isMyUploadsDefined()">
+      <div class="mt-5" >
+        My Skills 
+        
+
+         <div >
+           <div *ngIf="profile.mySkills.length === 0" class="bg-light p-2 mt-2">
+            <div class="row justify-content around">
+              <div class="col">
+                <strong> <h4 style="color: red;">No Skills Mentioned</h4></strong>
+              
+              </div>
+            </div>
+           </div>
+          <div *ngFor="let skills of profile.mySkills"
+            class="pinnedCourses mx-2"
+            style="position: relative;">
+            {{skills.name}} | <span style="font-size: 12px;"> {{skills.expertiseLevel}}</span>
+            <div>
+              {{skills.description}}
+            </div>
+           
+          </div>
+        </div>
+     </div>
+        <div class="mt-3" *ngIf="isMyUploadsDefined()">
           My Uploads
           <div *ngFor =" let content of profile.myUploads">
             <div class="bd-callout-warning ">
               <div class="row justify-content-between mt-2">
                   <div class="col-4">
-                      <p class="card-text">{{content.documentType}}</p>
+                      <p class="card-text">{{content.courseId}} | {{content.courseName}} | {{content.documentType}}</p>
                       <div class="row">
                         <div class="col text-left">
                           <i class="fa fa-arrow-up pointer"
-                          
+                          (click)="UpVoteClickedContent(content)"
                            [style.color]="IUpvotedContent(content.upVotedBy) ? '#FF6347' : '#212529'">{{content.upVotedBy.length}}</i> 
                           <span class="ml-3">
                                  <i class="fa fa-arrow-down pointer"
-                               
+                                 (click)="DownVoteClickedContent(content)"
                                  [style.color]="IDownVotedContent(content.downVotedBy) ? '#FF6347' : '#212529'">{{content.downVotedBy.length}}</i> 
                           </span>
                      </div>

@@ -319,6 +319,9 @@ export class FirebaseService {
    return  this.afs.collection('Profiles').doc<Profile>(myFId).valueChanges().pipe(take(1));
   }
 
+  getProfileData(myFId: string) {
+    return  this.afs.collection('Profiles').doc<Profile>(myFId).valueChanges().pipe(take(1));
+   }
   createNewProfile(myFId: string, profile: Profile) {
     return this.afs.collection('Profiles').doc(myFId).set(Object.assign({}, profile));
   }

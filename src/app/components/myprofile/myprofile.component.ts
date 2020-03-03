@@ -246,6 +246,7 @@ export class MyprofileComponent implements OnInit {
     SaveMySkills(){
       let mySkill = new MySkills();
       mySkill.description = (document.getElementById('newSkillDescription') as HTMLInputElement).value;
+     
       mySkill.id = (document.getElementById('newSkillID') as HTMLInputElement).value;
       mySkill.name = (document.getElementById('newSkillName') as HTMLInputElement).value;
       var AllLevelRadioButtons = document.getElementsByName('newSkillExpertiseLevel');
@@ -267,7 +268,9 @@ export class MyprofileComponent implements OnInit {
       // maybe set the id as some recognisable shit and onto that add some shit! will make sense thought!
       
 
-
+      if(mySkill.name === 'Default ') {
+        return;
+      }
       this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
         console.log('added To My Skills');
         let studentInSkill = new StudentsInSkills();

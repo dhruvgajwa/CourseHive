@@ -28,6 +28,7 @@ export class Course {
 }
 export class Review {
     courseId: string;
+    courseName: string;
     review: string;
     fId: string;
     fromRollNo: string;
@@ -41,6 +42,7 @@ export class Review {
 
     constructor() {
         this.courseId = '';
+        this.courseName = '';
         this.fromFid = '';
         this.fId = '';
         this.review = '';

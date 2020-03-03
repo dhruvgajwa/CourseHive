@@ -150,7 +150,7 @@
         <div class="bd-callout-warning ">
           <div class="row justify-content-between mt-2">
               <div class="col-4">
-                  <p class="card-text">{{content.documentType}}</p>
+                  <p class="card-text">{{content.courseId}} | {{content.courseName}} | {{content.documentType}}</p>
                   <div class="row">
                     <div class="col text-left">
                       <i class="fa fa-arrow-up pointer"
@@ -172,7 +172,7 @@
                   </i></button>
               </div>
               <div class="col-4 text-right">
-                <i [matMenuTriggerFor]="menu"  class="fa  fa-ellipsis-v pointer" ></i>
+                <i [matMenuTriggerFor]="menu" style="width: 40px;" class="fa  fa-ellipsis-v pointer" ></i>
           
                 <mat-menu #menu="matMenu">
                   <button (click)="DeleteContent(content)" mat-menu-item>
@@ -197,7 +197,7 @@
         <div *ngFor="let review of profile.myReviews">
             <div class="bd-callout-warning ">
                     <div >
-                        <p class="card-text">{{review.review}}</p>
+                        <p class="card-text">{{review.courseId}} | {{review.review}}</p>
                         <div class="row">
                           <div class="col text-left">
                             <i class="fa fa-arrow-up pointer"

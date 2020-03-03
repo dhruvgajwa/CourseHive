@@ -18,7 +18,8 @@ export class AddSkillComponent implements OnInit {
   addNewSkill(){
     // need to write a script to find icons by skill name!
     let name = (document.getElementById('name') as HTMLInputElement).value;
-    let iconStr = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjDE13MH9jhCagcixFHvCnvq1sV09ZdgkYTLu6YcGdTJbrVmH4wQ&s';
+    let iconStr = (document.getElementById('img') as HTMLInputElement).value;
+    //let iconStr = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjDE13MH9jhCagcixFHvCnvq1sV09ZdgkYTLu6YcGdTJbrVmH4wQ&s';
     let Skill = new SKILLS();
     Skill.name = name;
     Skill.icon = iconStr;

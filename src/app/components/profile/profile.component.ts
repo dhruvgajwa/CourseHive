@@ -12,11 +12,14 @@ import { Content, Review } from 'src/app/Models/Course';
 })
 export class ProfileComponent implements OnInit {
 
+  // should show skills and pinned courses too ?
   profile: Profile = new Profile();
-  myFId: string = '';
+  isEmailVerfied = false;
+  studentFID: string = '';
   karmaPoints: number = 0;
   reviews: number = 0;
   uploads: number = 0;
+  myFId: string = '';
   constructor(private authService: AuthService,
               private firebaseService: FirebaseService,
               private activatedRoutes: ActivatedRoute) { }
@@ -24,26 +27,33 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
 
     this.activatedRoutes.params.subscribe( (params: Params) => {
-      this.myFId = params.id;
+      this.studentFID = params.id;
     });
-    this.firebaseService.getMyProfileData(this.myFId).subscribe( (_doc) => {
+    this.myFId = this.authService.getMyFId();
+    this.firebaseService.getProfileData(this.studentFID).subscribe( (_doc: Profile) => {
+        console.log(this.authService.isEmailVerified());
+        this.isEmailVerfied = this.authService.isEmailVerified();
 
         this.profile = _doc;
+        console.log(this.profile);
+        if(this.profile.mySkills === undefined){
+          this.profile.mySkills = [];
+        }
         // temporary
       
 
 
         if (_doc !== undefined) {
-          this.firebaseService.getUploadsById(this.myFId).subscribe( (data: Content[]) => {
-            if (data === undefined) {
-              this.profile.myUploads = [];
+          this.firebaseService.getUploadsById(this.studentFID).subscribe( (data: Content[]) => {
+              if (data === undefined) {
+                this.profile.myUploads = [];
             } else {
 
               this.profile.myUploads = data;
               this.calculate();
             }
           });
-          this.firebaseService.getReviewsById(this.myFId).subscribe( (data: Review[]) => {
+          this.firebaseService.getReviewsById(this.studentFID).subscribe( (data: Review[]) => {
             if (data === undefined) {
               this.profile.myReviews = [];
             } else {
@@ -136,6 +146,59 @@ export class ProfileComponent implements OnInit {
     DownloadClicked(link: string) {
       window.open(link, '_blank');
     }
+    UpVoteClickedContent(content: Content) {
+      if (!this.isEmailVerfied) {
+        alert('Email not verified! Verify to perform this task');
+        return;
+      }
+      if (this.IUpvotedContent(content.upVotedBy)) {
+        //  let index = this.course.reviews.indexOf(review);
+        //  let i2 = this.course.reviews[index].upVotedBy.indexOf(this.myFId);
+        //  if (i2 > -1) {
+        //   this.course.reviews[index].upVotedBy.splice(index, 1);
+        //  }
+
+        content.upVotedBy.splice(content.upVotedBy.indexOf(this.myFId), 1);
+        // Reverse Upvote
+        this.firebaseService.reverseUpVoteContent(content.courseId, content.fId, this.myFId, content.uploadedByFId);
+
+      } else if (this.IDownVotedContent(content.downVotedBy) ) {
+              // Upvote and Reverse DownVote
+              // let index = this.course.reviews.indexOf(review);
+              // let i2 = this.course.reviews[index].downVotedBy.indexOf(this.myFId);
+              // if (i2 > -1) {
+              //  this.course.reviews[index].downVotedBy.splice(index, 1);
+              // }
+        content.upVotedBy.push(this.myFId);
+        content.downVotedBy.splice(content.downVotedBy.indexOf(this.myFId), 1);
+  
+        this.firebaseService.upvoteAndReverseDownvoteContent(content.courseId, content.fId, this.myFId, content.uploadedByFId);
+      } else {
+        // Just UpVote
+        content.upVotedBy.push(this.myFId);
+        this.firebaseService.upvoteContent(content.courseId, content.fId, this.myFId,content.uploadedByFId);
+      }
+    }
+    DownVoteClickedContent(content: Content) {
+      if (!this.isEmailVerfied) {
+        alert('Email not verified! Verify to perform this task');
+        return;
+      }
+      if (this.IDownVotedContent(content.downVotedBy)) {
+        content.downVotedBy.splice(content.downVotedBy.indexOf(this.myFId), 1);
+        this.firebaseService.reverseDownVoteContent(content.courseId, content.fId, this.myFId,content.uploadedByFId);
+        // Reverse Downvote
+  } else if (this.IUpvotedContent(content.upVotedBy) ) {
+    content.upVotedBy.splice(content.upVotedBy.indexOf(this.myFId), 1);
+    content.downVotedBy.push(this.myFId);
+    this.firebaseService.downvoteAndReverseUpvoteContent(content.courseId, content.fId, this.myFId,content.uploadedByFId);
+        // DownVote and Reverse UpVote
+  } else {
+    content.downVotedBy.push(this.myFId);
+    this.firebaseService.downvoteContent(content.courseId, content.fId, this.myFId, content.uploadedByFId);
+  // Just downVote
+  }
+}
 
 
 }

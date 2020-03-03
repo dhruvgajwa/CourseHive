@@ -40,14 +40,18 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.subscribeToPush();
-
-    this.updates.checkForUpdate();
+  
      // checking for update using service worker
 
     this.updates.available.subscribe(event => {
+
+      // here is should ask a question whether yes or no?
+      if ((event.available !== event.current)) {
+        this.updates.activateUpdate().then(() => document.location.reload());
+      }
       console.log('current version is', event.current);
       console.log('available version is', event.available);
+
     });
 
     this.updates.activated.subscribe(event => {
@@ -68,7 +72,16 @@ export class LoginComponent implements OnInit {
       if (auth) {
         // Here show the add Some content shit wala modal !
         // better load all my data initially and then show modals! this is also a better idea!
-        this.router.navigate(['/home']);
+
+        this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId()).subscribe( res => {
+          if(res === undefined){
+            console.log('res is undefindes');
+            // ask to please allow notification display!
+            this.subscribeToPush();
+          }
+          console.log(res);
+        });
+         this.router.navigate(['/home']);
       }
     });
 
@@ -150,6 +163,14 @@ Login(content: any) {
     this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (_doc: Profile) => {
       console.log(_doc);
       this.dataSharingService.setProfileData(_doc);
+    });
+
+
+    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId()).subscribe( res => {
+      if(res !== undefined){
+        // ask to please allow notification display!
+        this.subscribeToPush();
+      }
     });
     this.modalService.open(content);
 
@@ -249,14 +270,17 @@ subscribeToPush() {
   navigator['serviceWorker']
     .getRegistration('../../../app')
     .then(registration => {
-
       registration.pushManager
         .subscribe({ userVisibleOnly: true, applicationServerKey: convertedVapidKey })
         .then(pushSubscription => {
           console.log(pushSubscription);
           console.log(JSON.parse(JSON.stringify(pushSubscription)));
           console.log(pushSubscription.toJSON());
+          console.log(JSON.stringify(pushSubscription));
           console.log(pushSubscription.getKey('p256dh'));
+          this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId()).then(res => {
+            console.log(res)
+          });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)
           //   .subscribe(
@@ -286,6 +310,8 @@ subscribeToPush() {
         serverPublicKey: environment.vapiKey,
       }).then(res => {
         console.log(res);
+        this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(res), this.authservice.getMyFId());
+        console.log(JSON.stringify(res));
       //  window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
       }) ;
       // TODO: Send to server.
