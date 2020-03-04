@@ -64,10 +64,11 @@
       </div>
       <div class="row no-gutters justify-content-start">
       <div *ngFor="let pinnedCourse of profile.myPinnedCourses"
+        (click)="OpenThisCourse(course.courseId)"
        class="col pinnedCourses mx-2"
        style="position: relative;">
         {{pinnedCourse.name}} | {{pinnedCourse.id}}
-        <i class="fa fa-times removeMyPinnedCourse" (click)="RemoveThisPinnedCourse(pinnedCourse)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
+        <i class="fa fa-times removeMyPinnedCourse" (click)="RemoveThisPinnedCourse($event, pinnedCourse)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
       </div>
     </div>
   </div>
@@ -128,6 +129,7 @@
        </div>
       <div *ngFor="let skills of profile.mySkills"
         class="pinnedCourses mx-2"
+        (click)="openThisSkill(skills.id)"
         style="position: relative;">
         {{skills.name}} | <span style="font-size: 12px;"> {{skills.expertiseLevel}}</span>
         <div>

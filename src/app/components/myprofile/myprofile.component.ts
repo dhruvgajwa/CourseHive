@@ -283,7 +283,8 @@ export class MyprofileComponent implements OnInit {
       // add this skill to MySkills
     }
 
-    RemoveThisPinnedCourse(pinnedCourse: MyPinnedCourses){
+    RemoveThisPinnedCourse(e:Event ,pinnedCourse: MyPinnedCourses){
+      e.stopPropagation();
       this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {
@@ -330,6 +331,11 @@ export class MyprofileComponent implements OnInit {
         console.log(res);
       })
     }
-
+    OpenThisCourse(id: string){
+      this.router.navigateByUrl(`/course/${id}`);
+    }
+    openThisSkill(id: string){
+      this.router.navigateByUrl(`/skill/${id}`);
+    }
    
 }
