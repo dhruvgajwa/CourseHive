@@ -246,7 +246,21 @@ export class MyprofileComponent implements OnInit {
     SaveMySkills(){
       let mySkill = new MySkills();
       mySkill.description = (document.getElementById('newSkillDescription') as HTMLInputElement).value;
-     
+      let newSKillJSON =JSON.parse((document.getElementById('newSKillJSONString') as HTMLInputElement).value);
+      // checking if this skill is already in database
+
+      this.firebaseService.getSkillByID(newSKillJSON['id']).subscribe( res => {
+        if(res === undefined || res === null) {
+          // create a new skill document in the Skills, and skills subset!
+         // this.firebaseService.setNewSkill()
+         this.firebaseService.setNewSkill(newSKillJSON).then(res => {
+           console.log(res, "NEw Skill Added");
+         }).catch(e => {
+           console.log(e);
+         });
+        }
+      })
+
       mySkill.id = (document.getElementById('newSkillID') as HTMLInputElement).value;
       mySkill.name = (document.getElementById('newSkillName') as HTMLInputElement).value;
       var AllLevelRadioButtons = document.getElementsByName('newSkillExpertiseLevel');
@@ -263,23 +277,32 @@ export class MyprofileComponent implements OnInit {
       this.profile.mySkills.unshift(mySkill);
       document.getElementById('mySkillsSearch').style.display = 'none';
       document.getElementById('mySkillsEdit').style.display = 'inline';
+      let coll = document.getElementsByClassName('removeMySkills');
+
+      for(let i =0; i<coll.length; i++) {
+        (coll.item(i) as HTMLElement).style.display = 'none';
+      }
 
       // also check if the skil is already existing? 
       // maybe set the id as some recognisable shit and onto that add some shit! will make sense thought!
       
+      //if the skill is not in database
+      
 
       if(mySkill.name === 'Default ') {
         return;
+      } else {
+        this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
+          console.log('added To My Skills');
+          let studentInSkill = new StudentsInSkills();
+          studentInSkill.name = this.profile.name;
+          studentInSkill.rollNo = this.profile.rollNo;
+          studentInSkill.addedOn = new Date().getTime();
+          studentInSkill.studentFId = this.myFId;
+          this.firebaseService.addStudentToSkill(studentInSkill,mySkill.id);
+        });    
       }
-      this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
-        console.log('added To My Skills');
-        let studentInSkill = new StudentsInSkills();
-        studentInSkill.name = this.profile.name;
-        studentInSkill.rollNo = this.profile.rollNo;
-        studentInSkill.addedOn = new Date().getTime();
-        studentInSkill.studentFId = this.myFId;
-        this.firebaseService.addStudentToSkill(studentInSkill,mySkill.id);
-      });    
+      
       // add this skill to MySkills
     }
 
@@ -301,22 +324,13 @@ export class MyprofileComponent implements OnInit {
     
     // to handle event emitter from the skill searh component
     returnSkill(skill: SKILLS){
+      console.log(JSON.stringify(skill),`Skill from emit event`);
+      (document.getElementById('newSKillJSONString') as HTMLInputElement).value =JSON.stringify(Object.assign({},skill));
       (document.getElementById('newSkillName') as HTMLInputElement).value = skill.name;
       (document.getElementById('newSkillID') as HTMLInputElement).value = skill.id;
     }
     // My Skills
 
-
-
-    AddDemoNotification(){
-      let notification = new MyNotifications();
-      notification.body = ' Dhruv Gajwa has added a new review to the course EE1011 ! Go and check it out!';
-      notification.heading  = 'Content update for EE1011';
-      notification.receivedOn = new Date().getTime();
-      notification.clickLink = 'http://localhost:4200/course/EE1101';
-
-      this.profile.myNotifications.push(notification);
-    }
 
     handleNotificationClick(link: string){
       window.open(link);
@@ -336,6 +350,10 @@ export class MyprofileComponent implements OnInit {
     }
     openThisSkill(id: string){
       this.router.navigateByUrl(`/skill/${id}`);
+    }
+
+    stopPropogation(e: Event){
+      e.stopPropagation();
     }
    
 }

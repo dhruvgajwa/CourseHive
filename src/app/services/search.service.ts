@@ -12,7 +12,9 @@ import { SKILLS, StudentsInSkills } from '../Models/Profile';
 })
 export class SearchService {
 
-
+  getnewSkillID(){
+    return this.db.createPushId();
+  }
 
   // test and add .pipe(take(1)); tafter valuechanges()
   constructor(private afs: AngularFirestore, private db: AngularFireDatabase  ) { }

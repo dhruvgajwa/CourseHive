@@ -372,9 +372,18 @@ export class FirebaseService {
   // All these are untested
   setNewSkill(skill: SKILLS) {
    skill.id = this.db.createPushId();
-    return this.db.list<SKILLS>('skills').set(skill.id, Object.assign({},skill));
+    return this.db.list<SKILLS>('skills').set(skill.id, Object.assign({},skill)).then(_ => {
+      this.db.list('Skills').set(skill.id, Object.assign({},skill))
+    });
   }
 
+  getSkillByID(id: string) {
+    return this.db.object(`skills/${id}`).valueChanges().pipe(take(1));
+  }
+
+  getSkillByIDforSkillDetailsPage(id: string){
+    return this.db.object(`Skills/${id}`).valueChanges().pipe(take(1));
+  }
   // not tested
   addStudentToSkill(student: StudentsInSkills,skillID: string){
     return this.db.list<StudentsInSkills>(`Skills/${skillID}/students`).set(student.studentFId, Object.assign({},student));
@@ -394,6 +403,7 @@ export class FirebaseService {
    
   }
   
+
   removeSkillFromMySkills(myFID: string, skill: MySkills){
     return this.afs.collection('Profiles').doc(myFID).update({
       mySkills: firestore.FieldValue.arrayRemove(Object.assign({},skill))

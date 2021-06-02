@@ -5,6 +5,7 @@ import { FirebaseService } from '../../services/firebase.service';
 import { Profile, MyPinnedCourses } from 'src/app/Models/Profile';
 import {ActivatedRoute, Params} from '@angular/router';
 import { Content, Review } from 'src/app/Models/Course';
+import { Router} from '@angular/router';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -21,6 +22,7 @@ export class ProfileComponent implements OnInit {
   uploads: number = 0;
   myFId: string = '';
   constructor(private authService: AuthService,
+              private router: Router,
               private firebaseService: FirebaseService,
               private activatedRoutes: ActivatedRoute) { }
 
@@ -199,6 +201,11 @@ export class ProfileComponent implements OnInit {
   // Just downVote
   }
 }
-
+OpenThisCourse(id: string){
+  this.router.navigateByUrl(`/course/${id}`);
+}
+openThisSkill(id: string){
+  this.router.navigateByUrl(`/skill/${id}`);
+}
 
 }

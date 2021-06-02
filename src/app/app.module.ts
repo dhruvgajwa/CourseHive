@@ -48,7 +48,7 @@ const appRoutes: Routes = [
   { path: 'myprofile', component: MyprofileComponent, canActivate: [AuthGaurd] },
   { path: 'searchStudent', component: SearchStudentByNameComponent, canActivate: [AuthGaurd] },
   { path: 'profile/:id', component: ProfileComponent, canActivate: [AuthGaurd] },
-  { path: 'skill/:name', component: SkillDetailsComponent, canActivate: [AuthGaurd] },
+  { path: 'skill/:id', component: SkillDetailsComponent, canActivate: [AuthGaurd] },
   { path: 'addNewSkill', component: AddSkillComponent, canActivate: [AuthGaurd] }
 ];
 

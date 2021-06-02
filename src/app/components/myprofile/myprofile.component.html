@@ -64,7 +64,8 @@
       </div>
       <div class="row no-gutters justify-content-start">
       <div *ngFor="let pinnedCourse of profile.myPinnedCourses"
-        (click)="OpenThisCourse(course.courseId)"
+      (click)="stopPropogation($event)"
+        (click)="OpenThisCourse(pinnedCourse.id)"
        class="col pinnedCourses mx-2"
        style="position: relative;">
         {{pinnedCourse.name}} | {{pinnedCourse.id}}
@@ -89,6 +90,7 @@
 
       <div class="example-form bd-callout-warning" >
         <div class="example-full-width mb-3">
+          <input matInput id="newSKillJSONString"  placeholder="You Skill" value="Default" style="display: none;">
           <input matInput id="newSkillName"  placeholder="You Skill" value="Default" style="display: none;">
           <input matInput id="newSkillID"  placeholder="You Skill" value="Default" style="display: none;">
           <app-search-by-skill  (returnSkill)="returnSkill($event)"></app-search-by-skill>
@@ -121,21 +123,18 @@
             <strong style="float: right;"> <h5 style="color: white;" >Add</h5></strong>
          
           </div>
-        </div>
-
-          
-         
-         
+        </div> 
        </div>
       <div *ngFor="let skills of profile.mySkills"
         class="pinnedCourses mx-2"
+        (click)="stopPropogation($event)"
         (click)="openThisSkill(skills.id)"
         style="position: relative;">
         {{skills.name}} | <span style="font-size: 12px;"> {{skills.expertiseLevel}}</span>
         <div>
           {{skills.description}}
         </div>
-        <i class="fa fa-times removeMySkills" (click)="RemoveThisSkill(skills)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
+        <i class="fa fa-times removeMySkills" (click)="stopPropogation($event)" (click)="RemoveThisSkill(skills)" style="right: 20px;top: 20px;position: absolute;cursor: pointer;display: none;"></i>
       </div>
     </div>
  </div>
@@ -177,11 +176,9 @@
                 <i [matMenuTriggerFor]="menu" style="width: 40px;" class="fa  fa-ellipsis-v pointer" ></i>
           
                 <mat-menu #menu="matMenu">
-                  <button (click)="DeleteContent(content)" mat-menu-item>
-                    
+                  <button (click)="DeleteContent(content)" mat-menu-item>    
                     <span>Delete</span>
                   </button>
-                  
                 </mat-menu>
                 
               </div>

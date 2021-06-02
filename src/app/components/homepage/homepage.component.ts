@@ -199,7 +199,8 @@ export class HomepageComponent implements OnInit {
   
   }
   returnSkill(skill: SKILLS){
-    this.router.navigate(['/skill/'+ skill.name]);
+    // appare
+    this.router.navigate(['/skill/'+ skill.id]);
   }
   
 

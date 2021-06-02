@@ -55,6 +55,53 @@ export class CourseDetailsComponent implements OnInit {
   ngOnInit() {
     this.myFId = this.authService.getMyFId();
     console.log(this.myFId);
+    this.activatedRoutes.params.subscribe( (params: Params) => {
+      console.log(params);
+    
+      this.courseId = params.id;
+      console.log(params.id);
+      
+      this.firebaseService.getCourseDetailsById(this.courseId).subscribe((data: Course) => {
+        if (data === undefined) {
+          // Course is not Available in database
+          alert(' Course is not Available in database .. email@ dhruvgajwa008@gmail.com to add the course!');
+          this.router.navigate(['home'] );
+        }
+        this.course = data;
+        console.log(this.course);
+      });
+
+      this.firebaseService.getCourseReviewsById(this.courseId).subscribe((data: Review[]) => {
+        this.course.reviews = data;
+        console.log(this.course);
+      });
+
+      this.firebaseService.getCourseFAQsById(this.courseId).subscribe((data: FAQ[]) => {
+        this.course.fAQs = data;
+        this.course.fAQs.forEach((que: FAQ) => {
+          que.answers = undefined;
+        });
+        console.log(this.course);
+      });
+
+      this.firebaseService.getCourseContentById(this.courseId).subscribe( (data: Content[]) => {
+        this.course.contents = data;
+        // to scroll to that specific course!
+       
+
+        setTimeout(() => {
+          let arrFromLinks = window.location.href.split('#');
+          if(arrFromLinks.length > 1) {
+            document.getElementById(arrFromLinks[arrFromLinks.length - 1]).scrollIntoView();
+            document.getElementById(arrFromLinks[arrFromLinks.length - 1]).classList.add('HighlightedContent');
+          }
+          console.log(arrFromLinks)
+        }, 1000);
+
+        console.log(data);
+      });
+
+    });
     this.authService.getAuth().subscribe( (au: firebase.User) => {
       if (au) {
         this.auth = au;
@@ -108,40 +155,7 @@ export class CourseDetailsComponent implements OnInit {
       }
 
     });
-    this.activatedRoutes.params.subscribe( (params: Params) => {
-      
-      this.courseId = params.id;
-      console.log(params.id);
-      
-      this.firebaseService.getCourseDetailsById(this.courseId).subscribe((data: Course) => {
-        if (data === undefined) {
-          // Course is not Available in database
-          alert(' Course is not Available in database .. email@ dhruvgajwa008@gmail.com to add the course!');
-          this.router.navigate(['home'] );
-        }
-        this.course = data;
-        console.log(this.course);
-      });
 
-      this.firebaseService.getCourseReviewsById(this.courseId).subscribe((data: Review[]) => {
-        this.course.reviews = data;
-        console.log(this.course);
-      });
-
-      this.firebaseService.getCourseFAQsById(this.courseId).subscribe((data: FAQ[]) => {
-        this.course.fAQs = data;
-        this.course.fAQs.forEach((que: FAQ) => {
-          que.answers = undefined;
-        });
-        console.log(this.course);
-      });
-
-      this.firebaseService.getCourseContentById(this.courseId).subscribe( (data: Content[]) => {
-        this.course.contents = data;
-        console.log(data);
-      });
-
-    });
   }
 
   getDate(n: number) {
