@@ -9,6 +9,15 @@ import { FirebaseService} from '../services/firebase.service';
 import { map } from 'rxjs/operators';
 import { DataSharingService} from '../services/DataService/data-sharing.service';
 
+
+
+
+
+
+
+
+
+
 @Injectable()
 export class AuthGaurd implements CanActivate {
     constructor(private router: Router,
