@@ -15,6 +15,9 @@ import { PushServiceService } from '../../services/Pushservice/push-service.serv
 import { SwPush , SwUpdate} from '@angular/service-worker';
 import {DataSharingService} from '../../services/DataService/data-sharing.service';
 import { environment} from '../../../environments/environment';
+
+declare var pendo: any;
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -192,6 +195,10 @@ Login(content: any) {
       }
     });
 
+    pendo.track('user_logged_in', {
+      loginMethod: 'email_password',
+      hasPushSubscription: res !== undefined
+    });
     this.modalService.open(content);
     $('.check-icon').hide();
     setTimeout(function () {
@@ -212,9 +219,15 @@ sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
     this.resetMessage = 'Link sent to your email address ' + this.email ;
+    pendo.track('password_reset_requested', {
+      success: true
+    });
     this.modalService.open(content);
   }).catch( err => {
     this.resetMessage = 'Cant send password reset link to  ' + this.email + ' err =>' + err ;
+    pendo.track('password_reset_requested', {
+      success: false
+    });
     console.log(err);
   });
 }
@@ -265,7 +278,11 @@ signUpUsingEmailAndPassword() {
       this.firebaseService.createNewProfile(p.fId, p).then( _ => {
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
-
+            pendo.track('user_registered', {
+              rollNo: this.email.slice(0, 8),
+              hasProfileImage: !!this.image,
+              registrationMethod: 'email_password'
+            });
             this.router.navigate(['/home']);
           });
 
