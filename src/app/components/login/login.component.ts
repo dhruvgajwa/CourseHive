@@ -15,6 +15,9 @@ import { PushServiceService } from '../../services/Pushservice/push-service.serv
 import { SwPush , SwUpdate} from '@angular/service-worker';
 import {DataSharingService} from '../../services/DataService/data-sharing.service';
 import { environment} from '../../../environments/environment';
+
+declare var pendo: any;
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -77,9 +80,20 @@ export class LoginComponent implements OnInit {
     let option = this.getTheOptionForNotificationSubcriptionObjectStorageTag();
     this.authservice.getAuth().subscribe( (auth) => {
       if (auth) {
-        // Here show the add Some content shit wala modal !
-        // better load all my data initially and then show modals! this is also a better idea!
-        
+        this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (_doc: Profile) => {
+          if (_doc) {
+            pendo.identify({
+              visitor: {
+                id: _doc.fId,
+                full_name: _doc.name,
+                rollNo: _doc.rollNo,
+                karmaPoints: _doc.karmaPoints,
+                phone: _doc.phone,
+                myNewNotificationNumber: _doc.myNewNotificationNumber
+              }
+            });
+          }
+        });
         // check if the browser is chrome then reask for notification
         this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(), option).subscribe( (res: string) => {
           if(res === undefined || res === null) {
@@ -181,6 +195,17 @@ Login(content: any) {
     this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (_doc: Profile) => {
       console.log(_doc);
       this.dataSharingService.setProfileData(_doc);
+
+      pendo.identify({
+        visitor: {
+          id: _doc.fId,
+          full_name: _doc.name,
+          rollNo: _doc.rollNo,
+          karmaPoints: _doc.karmaPoints,
+          phone: _doc.phone,
+          myNewNotificationNumber: _doc.myNewNotificationNumber
+        }
+      });
     });
 
 
@@ -265,6 +290,17 @@ signUpUsingEmailAndPassword() {
       this.firebaseService.createNewProfile(p.fId, p).then( _ => {
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
+
+            pendo.identify({
+              visitor: {
+                id: p.fId,
+                full_name: p.name,
+                rollNo: p.rollNo,
+                karmaPoints: p.karmaPoints,
+                phone: p.phone,
+                myNewNotificationNumber: p.myNewNotificationNumber
+              }
+            });
 
             this.router.navigate(['/home']);
           });
