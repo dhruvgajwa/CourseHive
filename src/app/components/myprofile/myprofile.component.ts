@@ -3,6 +3,8 @@ import { AuthService} from '../../services/auth.service';
 import { FirebaseService } from '../../services/firebase.service';
 import { Profile, MyPinnedCourses, StudentsInPinnedCourse, MySkills, SKILLS , StudentsInSkills, MyNotifications} from 'src/app/Models/Profile';
 import { Content, Review, Course } from 'src/app/Models/Course';
+
+declare var pendo: any;
 import {LoadingBarService} from '@ngx-loading-bar/core';
 import { Router} from '@angular/router';
 
@@ -94,12 +96,27 @@ export class MyprofileComponent implements OnInit {
 
   DeleteReview(review: Review) {
     this.firebaseService.deleteReview( review, this.myFId).then( _ => {
+      if (typeof pendo !== 'undefined') {
+        pendo.track('review_deleted', {
+          courseId: review.courseId,
+          reviewId: review.fId
+        });
+      }
+
       this.profile.myReviews.splice(this.profile.myReviews.indexOf(review), 1);
     });
   }
 
   DeleteContent(content: Content) {
     this.firebaseService.deleteContent( content, this.myFId).then( _ => {
+      if (typeof pendo !== 'undefined') {
+        pendo.track('content_deleted', {
+          courseId: content.courseId,
+          contentId: content.fId,
+          documentType: content.documentType
+        });
+      }
+
       this.profile.myUploads.splice(this.profile.myUploads.indexOf(content), 1);
     });
   }
@@ -230,6 +247,12 @@ export class MyprofileComponent implements OnInit {
 
     RemoveThisSkill(skill: MySkills){
       this.firebaseService.removeSkillFromMySkills(this.myFId,skill).then( () => {
+        if (typeof pendo !== 'undefined') {
+          pendo.track('skill_removed_from_profile', {
+            skillId: skill.id
+          });
+        }
+
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIRemoveASkill(this.myFId, skill.id).then( () => {
           // remove this pinned course from my object
@@ -293,6 +316,15 @@ export class MyprofileComponent implements OnInit {
         return;
       } else {
         this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
+          if (typeof pendo !== 'undefined') {
+            pendo.track('skill_added_to_profile', {
+              skillId: mySkill.id,
+              skillName: mySkill.name,
+              expertiseLevel: mySkill.expertiseLevel || '',
+              source: 'profile'
+            });
+          }
+
           console.log('added To My Skills');
           let studentInSkill = new StudentsInSkills();
           studentInSkill.name = this.profile.name;
@@ -337,6 +369,12 @@ export class MyprofileComponent implements OnInit {
     }
 
     cleanNotifications(){
+      if (typeof pendo !== 'undefined') {
+        pendo.track('notifications_cleared', {
+          notificationCount: this.profile.myNotifications ? this.profile.myNotifications.length : 0
+        });
+      }
+
       this.profile.myNotifications = [];
       this.firebaseService.cleanNotifications(this.myFId);
     }
