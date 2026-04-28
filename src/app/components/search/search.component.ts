@@ -6,6 +6,7 @@ import { Observable, merge } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import {SearchService } from '../../services/search.service';
 //import * as data  from '../../../../u4.json';
+declare let pendo: any;
 
 @Component({
   selector: 'app-search',
@@ -37,6 +38,11 @@ export class SearchComponent implements OnInit {
       return;
     }
     let s: string = this.makeCourseIdSuitable(this.CourseId);
+    pendo.track('course_search_executed', {
+      search_query: this.CourseId,
+      search_type: 'course_id',
+      search_source: 'search_page'
+    });
     this.router.navigate(['/course/' + s]);
   }
   makeCourseIdSuitable(CourseId: string): string {

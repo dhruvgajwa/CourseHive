@@ -15,6 +15,7 @@ import { PushServiceService } from '../../services/Pushservice/push-service.serv
 import { SwPush , SwUpdate} from '@angular/service-worker';
 import {DataSharingService} from '../../services/DataService/data-sharing.service';
 import { environment} from '../../../environments/environment';
+declare let pendo: any;
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -178,13 +179,17 @@ Login(content: any) {
   this.authservice.login(this.email, this.password)
   .then((res: any) => {
     console.log('USer data is =>',res);
+    pendo.track('user_login_completed', {
+      browser_name: this.getBrowserName(),
+      is_mobile: this.isMobile()
+    });
     this.firebaseService.getMyProfileData(this.authservice.getMyFId()).subscribe( (_doc: Profile) => {
       console.log(_doc);
       this.dataSharingService.setProfileData(_doc);
     });
 
 
-    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(), 
+    this.pushService.getpushSubscriptionObjectFromServer(this.authservice.getMyFId(),
       this.getTheOptionForNotificationSubcriptionObjectStorageTag()).subscribe( res => {
       if(res !== undefined){
         // ask to please allow notification display!
@@ -211,6 +216,9 @@ Login(content: any) {
 sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
+    pendo.track('password_reset_requested', {
+      email: this.email
+    });
     this.resetMessage = 'Link sent to your email address ' + this.email ;
     this.modalService.open(content);
   }).catch( err => {
@@ -265,7 +273,13 @@ signUpUsingEmailAndPassword() {
       this.firebaseService.createNewProfile(p.fId, p).then( _ => {
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
-
+            pendo.track('user_signup_completed', {
+              email_domain: this.email.split('@')[1] || '',
+              roll_number: this.email.slice(0, 8),
+              department: this.email.slice(0, 2).toUpperCase(),
+              browser_name: this.getBrowserName(),
+              is_mobile: this.isMobile()
+            });
             this.router.navigate(['/home']);
           });
 
@@ -294,6 +308,11 @@ subscribeToPush() {
           console.log(pushSubscription.toJSON());
           console.log(JSON.stringify(pushSubscription));
           console.log(pushSubscription.getKey('p256dh'));
+          pendo.track('push_notification_subscribed', {
+            browser_name: this.getBrowserName(),
+            is_mobile: this.isMobile(),
+            device_type: this.isMobile() ? 'mobile' : 'desktop'
+          });
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
             console.log(res)

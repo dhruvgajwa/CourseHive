@@ -7,6 +7,7 @@ import { scan } from 'rxjs/operators';
 import {SearchService } from '../../services/search.service';
 import * as data  from '../../../../EvenSem.json';
 import { SKILLS } from 'src/app/Models/Profile';
+declare let pendo: any;
 // look for this file u4
 
 @Component({
@@ -55,6 +56,9 @@ export class HomepageComponent implements OnInit {
       this.searchByCourseDIV.style.display = 'none';
       this.searchByStudentDIV.style.display = 'none';
       this.searchBySkillDIV.style.display = '';
+      pendo.track('skill_search_executed', {
+        search_source: 'homepage'
+      });
     }
     
   }
@@ -64,6 +68,10 @@ export class HomepageComponent implements OnInit {
       return;
     }
     let s: string = this.makeCourseIdSuitable(this.CourseId);
+    pendo.track('homepage_search_executed', {
+      search_query: this.CourseId,
+      search_category: 'Courses'
+    });
     this.router.navigate(['/course/' + s]);
   }
   makeCourseIdSuitable(CourseId: string): string {
