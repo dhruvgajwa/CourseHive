@@ -57,11 +57,14 @@ export class SkillSearchComponent implements OnInit {
         if(this.filteredSkillList.length  >5){
           this.filteredSkillList.shift();
         }
-      
+
       //  console.log(m['name'])
       });
 
-      
+      pendo.track('skill_search_executed', {
+        query: q,
+        resultsCount: res.length
+      });
     });
     
 
