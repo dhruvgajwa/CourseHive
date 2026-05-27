@@ -201,6 +201,11 @@ export class MyprofileComponent implements OnInit {
         // Now Add this studentInPinnedCOurse to backed
         // here update to backend
         this.firebaseService.savePinnedCourses(this.myFId,pc).then(()=> {
+          pendo.track('pinned_course_added_from_profile', {
+            courseId: pc.id,
+            courseName: pc.name,
+            studentFId: this.myFId
+          });
           this.profile.myPinnedCourses.unshift(pc);
           // now add myprofile to skill subset
           this.firebaseService.AddStudentReferenceInPinnedCourse(studentInPinnedCourse,pc.id)
@@ -230,6 +235,11 @@ export class MyprofileComponent implements OnInit {
 
     RemoveThisSkill(skill: MySkills){
       this.firebaseService.removeSkillFromMySkills(this.myFId,skill).then( () => {
+        pendo.track('skill_removed_from_profile', {
+          skillId: skill.id,
+          skillName: skill.name,
+          studentFId: this.myFId
+        });
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIRemoveASkill(this.myFId, skill.id).then( () => {
           // remove this pinned course from my object
@@ -294,6 +304,13 @@ export class MyprofileComponent implements OnInit {
       } else {
         this.firebaseService.addSkillInStudentData(mySkill, this.myFId).then(()=> {
           console.log('added To My Skills');
+          pendo.track('skill_added_to_profile', {
+            skillId: mySkill.id,
+            skillName: mySkill.name,
+            expertiseLevel: mySkill.expertiseLevel,
+            description: mySkill.description,
+            studentFId: this.myFId
+          });
           let studentInSkill = new StudentsInSkills();
           studentInSkill.name = this.profile.name;
           studentInSkill.rollNo = this.profile.rollNo;
@@ -309,6 +326,11 @@ export class MyprofileComponent implements OnInit {
     RemoveThisPinnedCourse(e:Event ,pinnedCourse: MyPinnedCourses){
       e.stopPropagation();
       this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
+        pendo.track('pinned_course_removed_from_profile', {
+          courseId: pinnedCourse.id,
+          courseName: pinnedCourse.name,
+          studentFId: this.myFId
+        });
         // remove me from my pinned Courses
         this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {
           // remove this pinned course from my object
@@ -337,6 +359,10 @@ export class MyprofileComponent implements OnInit {
     }
 
     cleanNotifications(){
+      pendo.track('notifications_cleared', {
+        studentFId: this.myFId,
+        notificationCount: this.profile.myNotifications ? this.profile.myNotifications.length : 0
+      });
       this.profile.myNotifications = [];
       this.firebaseService.cleanNotifications(this.myFId);
     }

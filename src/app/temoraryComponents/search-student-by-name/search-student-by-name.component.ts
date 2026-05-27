@@ -44,7 +44,11 @@ export class SearchStudentByNameComponent implements OnInit {
     }
     if ($event.timeStamp - this.lastKeypress > 100) {
       let q =  this.setFirstLetterCapital($event.target.value);
-    
+    pendo.track('student_search_executed', {
+      query: q,
+      searchType: q.length < 7 ? 'rollNo_and_name' : 'name',
+      queryLength: q.length
+    });
     this.searchService.searchStudentByNameInRealtimeDB(q).subscribe( res => {
       res.forEach((m: Profile) => {
         console.log(m['name'])
