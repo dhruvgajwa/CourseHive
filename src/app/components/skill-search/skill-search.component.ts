@@ -47,9 +47,12 @@ export class SkillSearchComponent implements OnInit {
       return;
     }
     if ($event.timeStamp - this.lastKeypress > 100) {
-      let q =  this.setFirstLetterCapital($event.target.value);     
+      let q =  this.setFirstLetterCapital($event.target.value);
       console.log(q, q.toUpperCase())
-      
+    pendo.track('skill_search_executed', {
+      query: q,
+      queryLength: q.length
+    });
     this.searchService.searchSkill(q).subscribe( res => {
       res.forEach(m => {
         console.log(m['name'])

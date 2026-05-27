@@ -208,6 +208,11 @@ Login(content: any) {
           myNewNotificationNumber: _doc.myNewNotificationNumber
         }
       });
+      pendo.track('user_logged_in', {
+        loginMethod: 'email_password',
+        karmaPoints: _doc.karmaPoints,
+        rollNo: _doc.rollNo
+      });
     });
 
 
@@ -238,6 +243,9 @@ Login(content: any) {
 sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
+    pendo.track('password_reset_requested', {
+      emailDomain: this.email.split('@')[1] || ''
+    });
     this.resetMessage = 'Link sent to your email address ' + this.email ;
     this.modalService.open(content);
   }).catch( err => {
@@ -301,6 +309,12 @@ signUpUsingEmailAndPassword() {
             myNewNotificationNumber: p.myNewNotificationNumber
           }
         });
+        pendo.track('user_registered', {
+          rollNo: p.rollNo,
+          emailDomain: this.email.split('@')[1] || '',
+          hasPhone: !!p.phone,
+          hasProfileImage: !!p.image
+        });
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
 
@@ -334,7 +348,10 @@ subscribeToPush() {
           console.log(pushSubscription.getKey('p256dh'));
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
-            console.log(res)
+            console.log(res);
+            pendo.track('push_notification_subscribed', {
+              studentFId: this.authservice.getMyFId()
+            });
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)

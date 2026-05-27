@@ -37,7 +37,12 @@ export class AuthService {
 
 
    sendVerificationMail(email: string) {
-     return this.afAuth.auth.currentUser.sendEmailVerification();
+     return this.afAuth.auth.currentUser.sendEmailVerification().then(res => {
+       pendo.track('email_verification_sent', {
+         emailDomain: email.split('@')[1] || ''
+       });
+       return res;
+     });
    }
 
    // get Auth
