@@ -7,6 +7,7 @@ import { Profile } from 'src/app/Models/Profile';
 import { AngularFirestore } from '@angular/fire/firestore';
 import {AngularFireDatabase } from '@angular/fire/database';
 
+declare var pendo: any;
 
 @Component({
   selector: 'app-search-student-by-name',
@@ -52,10 +53,13 @@ export class SearchStudentByNameComponent implements OnInit {
         if(this.filteredStudents.length  >5){
           this.filteredStudents.shift();
         }
-        
-      });
 
-      
+      });
+      pendo.track('student_search_executed', {
+        searchQuery: q,
+        searchType: 'name',
+        resultsCount: res.length
+      });
     });
     
 

@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService} from '../../services/auth.service';
 import { Router } from '@angular/router';
+
+declare var pendo: any;
+
 @Component({
   selector: 'app-verify-email',
   templateUrl: './verify-email.component.html',
@@ -25,6 +28,9 @@ export class VerifyEmailComponent implements OnInit {
   SendVerificationLink() {
     this.authService.sendVerificationMail(this.email).then ( _ => {
       this.linkSentAgain = true;
+      pendo.track('email_verification_resent', {
+        success: true
+      });
     });
   }
 

@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { SKILLS, StudentsInSkills } from 'src/app/Models/Profile';
 import {FirebaseService} from '../../services/firebase.service';
 import { AuthService } from '../../services/auth.service';
+
+declare var pendo: any;
+
 @Component({
   selector: 'app-add-skill',
   templateUrl: './add-skill.component.html',
@@ -24,6 +27,11 @@ export class AddSkillComponent implements OnInit {
     Skill.name = name;
     Skill.icon = iconStr;
     this.firebaseService.setNewSkill(Skill).then(res => {
+      pendo.track('new_skill_created', {
+        skillName: name,
+        hasIcon: !!iconStr,
+        source: 'add_skill_page'
+      });
       console.log(res);
     });
 

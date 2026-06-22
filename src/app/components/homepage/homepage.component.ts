@@ -9,6 +9,8 @@ import * as data  from '../../../../EvenSem.json';
 import { SKILLS } from 'src/app/Models/Profile';
 // look for this file u4
 
+declare var pendo: any;
+
 @Component({
   selector: 'app-homepage',
   templateUrl: './homepage.component.html',
@@ -64,6 +66,10 @@ export class HomepageComponent implements OnInit {
       return;
     }
     let s: string = this.makeCourseIdSuitable(this.CourseId);
+    pendo.track('course_search_executed', {
+      courseId: s,
+      searchSource: 'homepage'
+    });
     this.router.navigate(['/course/' + s]);
   }
   makeCourseIdSuitable(CourseId: string): string {
@@ -96,8 +102,11 @@ export class HomepageComponent implements OnInit {
           this.filteredCoursesList.shift();
         }
       });
-
-      
+      pendo.track('course_name_search_executed', {
+        searchQuery: q,
+        resultsCount: res.length,
+        searchSource: 'homepage'
+      });
     });
     
     if(q.length < 7 ) {
