@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { MyNotifications, Profile, MyPinnedCourses, StudentsInPinnedCourse } from 'src/app/Models/Profile';
 import {DataSharingService} from '../../services/DataService/data-sharing.service';
+declare let pendo: any;
 
 // So, there is no auth gaurd on this page, So, has to call the data
 @Component({
@@ -279,6 +280,11 @@ export class CourseDetailsComponent implements OnInit {
 
             this.firebaseService.AskAQuestion(this.Que,
               auth.displayName, auth.email.slice(0, 8), this.courseId ).then( _ => {
+                pendo.track('faq_question_submitted', {
+                  course_id: this.courseId,
+                  question_length: this.Que.length,
+                  asker_roll_no: auth.email.slice(0, 8)
+                });
                 this.Que = '';
                 this.course.fAQs.unshift(question);
               });
@@ -320,6 +326,12 @@ export class CourseDetailsComponent implements OnInit {
         console.log(this.AnswerToOpenQuestion);
         this.firebaseService.AnswerAQuestion(this.AnswerToOpenQuestion, this.OpenedQuestion.fId,
           this.courseId).then(_ => {
+            pendo.track('faq_answer_submitted', {
+              course_id: this.courseId,
+              question_id: this.OpenedQuestion.fId,
+              answer_length: this.AnswerToOpenQuestion.answer.length,
+              responder_roll_no: auth.email.slice(0, 8)
+            });
             this.course.fAQs.forEach((faq: FAQ) => {
               if (faq.fId === this.OpenedQuestion.fId) {
                 faq.answers.unshift(this.AnswerToOpenQuestion);
@@ -381,7 +393,13 @@ export class CourseDetailsComponent implements OnInit {
           console.log(s);
           this.uploadContent.documentAddress = s;
           this.uploadContent.fId = this.afs.createId();
-          this.firebaseService.UploadContent(this.uploadContent, this.courseId).then( _ => { 
+          this.firebaseService.UploadContent(this.uploadContent, this.courseId).then( _ => {
+            pendo.track('course_content_uploaded', {
+              course_id: this.courseId,
+              course_name: this.course.name,
+              document_type: this.uploadContent.documentType,
+              uploader_roll_no: this.auth.email.slice(0, 8)
+            });
             // content has been uploaded!
             // now send a async request to send notification to all the 
             // peopl who have upinned this course
@@ -468,6 +486,12 @@ export class CourseDetailsComponent implements OnInit {
       r.fromFid = this.myFId;
       r.fId = this.afs.createId();
       this.firebaseService.ReviewCourse(this.courseId, r).then(_ => {
+        pendo.track('course_review_submitted', {
+          course_id: this.courseId,
+          course_name: this.course.name,
+          review_length: r.review.length,
+          reviewer_roll_no: r.fromRollNo
+        });
         this.course.reviews.unshift(r);
         this.review = '';
         this.firebaseService.AddToMyReviews(r, this.myFId) ;
@@ -567,6 +591,11 @@ export class CourseDetailsComponent implements OnInit {
 
       DeleteContent(answer: Answer, question: FAQ) {
         this.firebaseService.deleteAnswer(answer, this.courseId, question.fId, answer.fId).then( _ => {
+          pendo.track('faq_answer_deleted', {
+            course_id: this.courseId,
+            question_id: question.fId,
+            answer_id: answer.fId
+          });
          let questionIndex = this.course.fAQs.indexOf(question);
          let ansewerIndex =  this.course.fAQs[questionIndex].answers.indexOf(answer);
           this.course.fAQs[questionIndex].answers.splice(ansewerIndex,1);
@@ -609,6 +638,11 @@ export class CourseDetailsComponent implements OnInit {
 
 
           this.firebaseService.savePinnedCourses(this.myFId,pc).then(()=> {
+            pendo.track('course_pinned', {
+              course_id: this.courseId,
+              course_name: this.course.name,
+              pin_source: 'course_details_page'
+            });
             this.profile.myPinnedCourses.unshift(pc);
             console.log('this course is added to pinned courses!');
             // also, check here if the innerhtml automatically gets converted to new status
@@ -635,6 +669,10 @@ export class CourseDetailsComponent implements OnInit {
           // get this pinned course array
          
           this.firebaseService.removeCourseFromMyPinnedCourses(this.myFId,pinnedCourse).then( () => {
+            pendo.track('course_unpinned', {
+              course_id: this.courseId,
+              unpin_source: 'course_details_page'
+            });
             document.getElementById('coursePinButton').innerText = `Pin`;
             // remove me from my pinned Courses
             this.firebaseService.removeMyStudentObjectAfterIunpinACourse(pinnedCourse.id, this.myFId).then( () => {

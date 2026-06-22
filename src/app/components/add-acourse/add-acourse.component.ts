@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Course } from 'src/app/Models/Course';
 import { FirebaseService } from '../../services/firebase.service';
 import { Router } from '@angular/router';
+declare let pendo: any;
 @Component({
   selector: 'app-add-acourse',
   templateUrl: './add-acourse.component.html',
@@ -36,6 +37,13 @@ export class AddACourseComponent implements OnInit {
     }
 
     this.firebaseService.AddACourse(this.course).then( _ => {
+      pendo.track('course_created', {
+        course_id: this.course.id,
+        course_name: this.course.name,
+        instructor_name: this.course.instructerName,
+        credits: this.course.credits,
+        slot: this.course.slot
+      });
       this.router.navigate(['course/' + this.course.id]);
     });
   }
