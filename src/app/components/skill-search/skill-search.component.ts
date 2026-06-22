@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 
 import { SKILLS } from 'src/app/Models/Profile';
 import { SearchService} from '../../services/search.service';
+
+declare var pendo: any;
 @Component({
   selector: 'app-skill-search',
   templateUrl: './skill-search.component.html',
@@ -57,11 +59,16 @@ export class SkillSearchComponent implements OnInit {
         if(this.filteredSkillList.length  >5){
           this.filteredSkillList.shift();
         }
-      
+
       //  console.log(m['name'])
       });
 
-      
+      if (typeof pendo !== 'undefined') {
+        pendo.track('skill_search_executed', {
+          query: q,
+          resultsCount: res.length
+        });
+      }
     });
     
 

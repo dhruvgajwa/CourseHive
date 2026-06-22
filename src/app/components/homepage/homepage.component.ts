@@ -9,6 +9,8 @@ import * as data  from '../../../../EvenSem.json';
 import { SKILLS } from 'src/app/Models/Profile';
 // look for this file u4
 
+declare var pendo: any;
+
 @Component({
   selector: 'app-homepage',
   templateUrl: './homepage.component.html',
@@ -97,7 +99,13 @@ export class HomepageComponent implements OnInit {
         }
       });
 
-      
+      if (typeof pendo !== 'undefined') {
+        pendo.track('course_search_executed', {
+          query: q,
+          searchType: 'name',
+          resultsCount: res.length
+        });
+      }
     });
     
     if(q.length < 7 ) {

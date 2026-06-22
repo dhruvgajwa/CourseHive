@@ -15,6 +15,8 @@ import { PushServiceService } from '../../services/Pushservice/push-service.serv
 import { SwPush , SwUpdate} from '@angular/service-worker';
 import {DataSharingService} from '../../services/DataService/data-sharing.service';
 import { environment} from '../../../environments/environment';
+
+declare var pendo: any;
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -219,6 +221,14 @@ Login(content: any) {
       }
     });
 
+    if (typeof pendo !== 'undefined') {
+      pendo.track('user_logged_in', {
+        browser: this.getBrowserName(),
+        deviceType: this.isMobile() ? 'mobile' : 'desktop',
+        isEmailVerified: res.user ? res.user.emailVerified : false
+      });
+    }
+
     this.modalService.open(content);
     $('.check-icon').hide();
     setTimeout(function () {
@@ -238,6 +248,12 @@ Login(content: any) {
 sendPasswordResetEmaail(content: any) {
   this.authservice.sendPasswordResetEmaail(this.email).then(_ => {
     console.log( _ );
+    if (typeof pendo !== 'undefined') {
+      pendo.track('password_reset_requested', {
+        emailDomain: this.email.split('@')[1] || ''
+      });
+    }
+
     this.resetMessage = 'Link sent to your email address ' + this.email ;
     this.modalService.open(content);
   }).catch( err => {
@@ -304,6 +320,16 @@ signUpUsingEmailAndPassword() {
         this.authservice.updateBAsicProfileDetails(this.image, this.name).then( _ => {
           this.authservice.sendVerificationMail(this.email).then( _ => {
 
+            if (typeof pendo !== 'undefined') {
+              pendo.track('user_registered', {
+                rollNo: this.email.slice(0, 8),
+                department: this.email.slice(0, 2).toUpperCase(),
+                programme: this.email.slice(4, 5).toUpperCase(),
+                year: this.email.slice(2, 4),
+                hasPhone: this.phone !== ''
+              });
+            }
+
             this.router.navigate(['/home']);
           });
 
@@ -334,7 +360,15 @@ subscribeToPush() {
           console.log(pushSubscription.getKey('p256dh'));
           this.pushService.sendpushSubscriptionObjectToServer(JSON.stringify(pushSubscription), this.authservice.getMyFId(),
           this.getTheOptionForNotificationSubcriptionObjectStorageTag()).then(res => {
-            console.log(res)
+            console.log(res);
+
+            if (typeof pendo !== 'undefined') {
+              pendo.track('push_notification_subscribed', {
+                browser: this.getBrowserName(),
+                deviceType: this.isMobile() ? 'mobile' : 'desktop',
+                subscriptionOption: this.getTheOptionForNotificationSubcriptionObjectStorageTag()
+              });
+            }
           });
          // window.open(`https://stackoverflow.com/questions/31328365/how-to-start-http-server-locally`);
           // this.pushService.addSubscriber(pushSubscription)
